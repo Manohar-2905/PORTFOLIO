@@ -70,7 +70,7 @@ const Hero = () => {
 
         {/* Typewriter Subtitle */}
         <p className="text-2xl md:text-3xl font-light text-slate-300 mb-8 h-10 flex items-center justify-center gap-2">
-          <span>19-year-old</span>
+          <span>21-year-old</span>
           <span className="font-semibold text-indigo-400">{text}</span>
           <span className="animate-pulse inline-block w-0.5 h-8 bg-indigo-500"></span>
         </p>
