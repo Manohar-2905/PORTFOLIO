@@ -146,62 +146,314 @@ function ProgressBar() {
 
 // ──────────────────────── LOADER ────────────────────────
 function Loader({onDone}) {
+  const progressRef = useRef(null)
+  const barRef = useRef(null)
+  const clipRef = useRef(null)
+
   useEffect(()=>{
-    const tl=gsap.timeline({onComplete:onDone})
-    tl.set(".ld-logo",{opacity:0,scale:0})
-      .to(".ld-logo",{scale:1,opacity:1,duration:0.6,ease:"back.out(1.7)"})
-      .to(".ld-line",{scaleX:1,duration:0.85,ease:"power3.out"})
-      .to(".ld-bar",{scaleY:1,stagger:0.055,ease:"power2.out",duration:0.38},"-=0.4")
-      .to(".ld-wrap",{opacity:0,duration:0.5,ease:"power2.in"},">+0.3")
-  },[onDone])
-  return(<motion.div className="ld-wrap fixed inset-0 z-[10000] flex flex-col items-center justify-center"
-    style={{background:"#000"}} exit={{opacity:0}}>
-    <div className="absolute inset-0 pointer-events-none"
-      style={{backgroundImage:"repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(59,130,246,0.04) 3px,rgba(59,130,246,0.04) 4px)"}}/>
-    {[0,1,2].map(i=>(
-      <motion.div key={i} className="absolute rounded-full border border-[#3B82F6]/10"
-        initial={{width:40,height:40,opacity:0.7}} animate={{width:500,height:500,opacity:0}}
-        transition={{duration:2.2,delay:i*0.55,repeat:Infinity,ease:"easeOut"}}/>
-    ))}
-    <div className="ld-logo text-center z-10">
-      <div className="font-mono text-7xl font-black tracking-tighter mb-5"
-        style={{color:"#3B82F6",textShadow:"0 0 60px rgba(59,130,246,0.9),0 0 120px rgba(59,130,246,0.4)"}}>
-        {"<MK/>"}
-      </div>
-      <div className="ld-line h-px w-72 mx-auto origin-left"
-        style={{background:"linear-gradient(90deg,transparent,#3B82F6,transparent)",transform:"scaleX(0)"}}/>
-    </div>
-    <div className="flex items-end gap-1.5 mt-10" style={{height:44}}>
-      {Array.from({length:20}).map((_,i)=>(
-        <span key={i} className="ld-bar inline-block w-1.5 rounded-sm"
-          style={{height:`${18+Math.random()*22}px`,background:"#3B82F6",transform:"scaleY(0)",transformOrigin:"bottom",opacity:0.5+Math.random()*0.5}}/>
+    const tl = gsap.timeline({onComplete: onDone})
+
+    tl.set(".ld-content", { opacity: 0, scale: 0.92 })
+      .to(".ld-content", { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" })
+      .to({ p: 0 }, {
+        p: 100,
+        duration: 1.9,
+        ease: "power1.inOut",
+        onUpdate: function() {
+          const val = Math.round(this.targets()[0].p)
+          if (progressRef.current) progressRef.current.textContent = val + "%"
+          if (barRef.current) barRef.current.style.width = val + "%"
+          if (clipRef.current) clipRef.current.style.clipPath = `inset(0 ${100 - val}% 0 0)`
+        }
+      })
+      .to({}, { duration: 0.15 })
+      .to(".ld-content", { y: -50, opacity: 0, duration: 0.45, ease: "power2.in" })
+      .to(".ld-wrap", { yPercent: -100, duration: 1.25, ease: "power4.inOut", force3D: true }, "-=0.15")
+      .to(".main-reveal", { scale: 1, opacity: 1, duration: 1.25, ease: "power3.out", force3D: true, onComplete: () => { ScrollTrigger.refresh() } }, "-=1.25")
+  }, [onDone])
+
+  return(
+    <div className="ld-wrap fixed inset-0 z-[10000] flex flex-col items-center justify-center overflow-hidden pointer-events-auto"
+      style={{
+        background: "#080808",
+        backgroundImage: "repeating-linear-gradient(0deg, #0e0e0e 0px, #0e0e0e 14px, #050505 15px, #050505 17px)",
+        willChange: "transform"
+      }}>
+      {/* Background Grid Pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-25"
+        style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(59,130,246,0.05) 3px,rgba(59,130,246,0.05) 4px)" }}/>
+
+      {/* Concentric radar rings */}
+      {[0,1,2].map(i => (
+        <motion.div key={i} className="absolute rounded-full border border-[#007AFF]/10 pointer-events-none"
+          initial={{ width: 40, height: 40, opacity: 0.7 }} animate={{ width: 650, height: 650, opacity: 0 }}
+          transition={{ duration: 2.5, delay: i * 0.6, repeat: Infinity, ease: "easeOut" }}/>
       ))}
+
+      {/* Main Content Container (No Card Background) */}
+      <div className="ld-content flex flex-col items-center justify-center z-10 relative px-4 w-full">
+        
+        {/* Outer Circular Ring Surrounding MK Text */}
+        <div className="relative flex items-center justify-center w-64 h-64 md:w-80 md:h-80">
+          
+          {/* Rotating Outer Dashed Accent Ring */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 rounded-full border border-dashed border-[#007AFF]/30 pointer-events-none"
+          />
+
+          {/* Glowing Glass Outer Ring */}
+          <div className="absolute inset-2 rounded-full border-2 border-[#007AFF]/40 shadow-[0_0_50px_rgba(0,122,255,0.35),inset_0_0_25px_rgba(0,122,255,0.2)] backdrop-blur-md pointer-events-none" />
+
+          {/* Inner Accent Ring */}
+          <div className="absolute inset-5 rounded-full border border-white/10 pointer-events-none" />
+
+          {/* Liquid SVG MK Text centered inside the Ring */}
+          <div className="relative w-full h-full flex justify-center items-center">
+            <svg viewBox="0 0 400 200" className="w-full h-auto max-w-[260px] select-none overflow-visible">
+              <defs>
+                {/* iPhone iOS Liquid Gradient */}
+                <linearGradient id="iosLiquidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#007AFF" />
+                  <stop offset="50%" stopColor="#38BDF8" />
+                  <stop offset="100%" stopColor="#60A5FA" />
+                </linearGradient>
+
+                {/* Glass Specular Reflection Gradient */}
+                <linearGradient id="glassReflection" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.45" />
+                  <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.05" />
+                  <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+                </linearGradient>
+
+                {/* MK Text Mask */}
+                <mask id="mkMask">
+                  <text x="200" y="132" textAnchor="middle" dominantBaseline="middle"
+                    fill="#ffffff"
+                    stroke="#ffffff"
+                    strokeWidth="3"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    style={{
+                      fontSize: "115px",
+                      fontWeight: "900",
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
+                      letterSpacing: "-0.03em"
+                    }}>
+                    MK
+                  </text>
+                </mask>
+              </defs>
+
+              {/* Base Dim Faint Glass Outline (Visible at 0%) */}
+              <text x="200" y="132" textAnchor="middle" dominantBaseline="middle"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.2)"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                style={{
+                  fontSize: "115px",
+                  fontWeight: "900",
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
+                  letterSpacing: "-0.035em",
+                  filter: "drop-shadow(0 0 12px rgba(0, 122, 255, 0.3))"
+                }}>
+                MK
+              </text>
+
+              {/* Liquid Group Filling Left-to-Right Masked by MK with GPU Accelerated ClipPath */}
+              <g mask="url(#mkMask)">
+                <g ref={clipRef} style={{ clipPath: "inset(0 100% 0 0)", willChange: "clip-path" }}>
+                  {/* Solid Liquid Rectangle */}
+                  <rect x="0" y="0" width="400" height="200" fill="url(#iosLiquidGrad)"
+                    style={{ filter: "drop-shadow(0 0 25px rgba(0, 122, 255, 0.9))" }} />
+
+                  {/* Animated Vertical Wave Surface */}
+                  <motion.g animate={{ y: [-12, 12, -12] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}>
+                    <path
+                      d="M 0 0 H 400 Q 418 50 400 100 T 418 150 T 400 200 H 0 Z"
+                      fill="url(#iosLiquidGrad)"
+                    />
+                  </motion.g>
+
+                  {/* 3D Glass Specular Reflection Overlay */}
+                  <rect x="0" y="0" width="400" height="95" fill="url(#glassReflection)" />
+                </g>
+              </g>
+            </svg>
+          </div>
+
+        </div>
+
+        {/* Status Pill & Percentage */}
+        <div className="flex items-center gap-3 mt-8 px-5 py-2.5 rounded-full bg-white/[0.06] border border-[#007AFF]/20 backdrop-blur-xl shadow-lg">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#007AFF] animate-pulse shadow-[0_0_12px_#007AFF]" />
+          <span className="font-mono text-xs font-semibold tracking-wider text-white/80 uppercase">
+            MK
+          </span>
+          <span className="text-white/30 text-xs">•</span>
+          <span ref={progressRef} className="font-mono text-xs font-black text-[#38BDF8] min-w-[2.5rem]">
+            0%
+          </span>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-56 h-1 mt-3 bg-white/10 rounded-full overflow-hidden relative">
+          <div ref={barRef} className="h-full bg-gradient-to-r from-[#007AFF] via-[#38BDF8] to-[#60A5FA] rounded-full transition-all duration-75 ease-out shadow-[0_0_10px_#38BDF8]"
+            style={{ width: "0%" }} />
+        </div>
+
+      </div>
+
+      {/* Shutter Bottom Handle Bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-2.5 bg-gradient-to-r from-[#007AFF]/40 via-[#38BDF8] to-[#007AFF]/40 shadow-[0_0_25px_#007AFF] flex justify-center items-center">
+        <div className="w-20 h-1 bg-[#38BDF8] rounded-full shadow-[0_0_12px_#38BDF8]" />
+      </div>
     </div>
-    <div className="font-mono text-xs mt-4" style={{color:"rgba(59,130,246,0.4)"}}>LOADING...</div>
-  </motion.div>)
+  )
+}
+
+// ──────────────────────── SCROLL SCRUB HELPERS ────────────────────────
+function ScrollTextScrub({ children, className = "", style = {}, as: Component = "div", start = "top 98%", end = "top 82%" }) {
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const chars = el.querySelectorAll(".scrub-char")
+    if (!chars.length) return
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(chars,
+        { opacity: 0, y: 16, filter: "blur(6px)" },
+        {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          stagger: 0.02,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start,
+            end,
+            scrub: 0.3,
+            invalidateOnRefresh: true,
+            fastScrollEnd: true,
+            onLeave: () => gsap.set(chars, { opacity: 1, y: 0, filter: "blur(0px)" }),
+            onLeaveBack: () => gsap.set(chars, { opacity: 0, y: 16, filter: "blur(6px)" }),
+          }
+        }
+      )
+    }, el)
+
+    return () => ctx.revert()
+  }, [children, start, end])
+
+  if (typeof children !== "string") {
+    return <Component className={className} style={style}>{children}</Component>
+  }
+
+  const words = children.split(" ")
+
+  return (
+    <Component ref={containerRef} className={`inline-block ${className}`} style={style}>
+      {words.map((word, wi) => (
+        <span key={wi} className="inline-block whitespace-nowrap mr-[0.25em]">
+          {word.split("").map((char, ci) => (
+            <span
+              key={ci}
+              className="scrub-char inline-block"
+              style={{ opacity: 0, willChange: "opacity, transform, filter" }}
+            >
+              {char}
+            </span>
+          ))}
+        </span>
+      ))}
+    </Component>
+  )
+}
+
+function ScrollElementScrub({ children, className = "", style = {}, start = "top 98%", end = "top 85%" }) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 40, scale: 0.96, filter: "blur(6px)" },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start,
+            end,
+            scrub: 0.3,
+            invalidateOnRefresh: true,
+            fastScrollEnd: true,
+            onLeave: () => gsap.set(el, { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }),
+            onLeaveBack: () => gsap.set(el, { opacity: 0, y: 40, scale: 0.96, filter: "blur(6px)" }),
+          }
+        }
+      )
+    }, el)
+
+    return () => ctx.revert()
+  }, [start, end])
+
+  return (
+    <div ref={ref} className={className} style={{ ...style, opacity: 0, willChange: "transform, opacity, filter" }}>
+      {children}
+    </div>
+  )
 }
 
 // ──────────────────────── NAV ────────────────────────
 function Nav() {
   const [scrolled,setScrolled]=useState(false), [open,setOpen]=useState(false)
-  useEffect(()=>{ const fn=()=>setScrolled(window.scrollY>50); window.addEventListener("scroll",fn,{passive:true}); return()=>window.removeEventListener("scroll",fn) },[])
+  useEffect(()=>{ 
+    const fn=()=>setScrolled(window.scrollY>50); 
+    const handleHash = () => setTimeout(() => { ScrollTrigger.update(); ScrollTrigger.refresh() }, 400);
+    window.addEventListener("scroll",fn,{passive:true});
+    window.addEventListener("hashchange", handleHash);
+    return()=>{ window.removeEventListener("scroll",fn); window.removeEventListener("hashchange", handleHash); } 
+  },[])
+
+  const scrollToSection = (id) => {
+    setOpen(false)
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" })
+      setTimeout(() => { ScrollTrigger.update(); ScrollTrigger.refresh() }, 500)
+    }
+  }
+
   return(<motion.nav initial={{y:-80,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:0.3,duration:0.7}}
     className="fixed top-0 left-0 right-0 z-50"
     style={{background:scrolled?"rgba(8,8,8,0.94)":"transparent",backdropFilter:scrolled?"blur(24px)":"none",
       borderBottom:scrolled?"1px solid rgba(59,130,246,0.07)":"none",
       padding:scrolled?"12px 0":"22px 0",transition:"all 0.4s ease"}}>
     <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-      <a href="#" data-h className="font-mono text-lg font-black tracking-tighter">
+      <a href="#" onClick={(e)=>{e.preventDefault(); window.scrollTo({top:0, behavior:"smooth"})}} data-h className="font-mono text-lg font-black tracking-tighter">
         <span style={{color:"#3B82F6"}}>{"<"}</span>MK
         <motion.span animate={{opacity:[1,0,1]}} transition={{duration:1,repeat:Infinity}} style={{color:"#3B82F6"}}>_</motion.span>
         <span style={{color:"#3B82F6"}}>{"/>"}</span>
       </a>
       <ul className="hidden md:flex items-center gap-0.5">
         {NAV.map(l=>(
-          <li key={l}><a href={`#${l.toLowerCase()}`} data-h
+          <li key={l}><button onClick={()=>scrollToSection(l.toLowerCase())} data-h
             className="relative px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors group block">
             {l}<span className="absolute bottom-0 left-4 right-4 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-left" style={{background:"#3B82F6"}}/>
-          </a></li>
+          </button></li>
         ))}
       </ul>
       <button onClick={()=>setOpen(!open)} data-h
@@ -220,9 +472,9 @@ function Nav() {
         <ul className="px-6 py-6 space-y-3">
           {NAV.map((l,i)=>(
             <motion.li key={l} initial={{x:-20,opacity:0}} animate={{x:0,opacity:1}} transition={{delay:i*0.04}}>
-              <a href={`#${l.toLowerCase()}`} onClick={()=>setOpen(false)} data-h className="block py-1.5 text-gray-300 font-medium">
+              <button onClick={()=>scrollToSection(l.toLowerCase())} data-h className="block w-full text-left py-1.5 text-gray-300 font-medium">
                 <span className="font-mono text-xs mr-3" style={{color:"#3B82F6"}}>0{i+1}.</span>{l}
-              </a>
+              </button>
             </motion.li>
           ))}
         </ul>
@@ -367,49 +619,41 @@ function Marquee() {
 
 // ──────────────────────── ABOUT ────────────────────────
 function About() {
-  const ref=useRef(), inView=useInView(ref,{once:true,margin:"-80px"})
   const bio="I'm Manohar Kumar, a 4th-year IT student at GGSIPU Delhi genuinely obsessed with building things that work beautifully. From AI-powered estimators to full-stack freelance systems — I turn complex problems into clean, scalable solutions. When I'm not coding, I'm exploring mountains or grinding LeetCode at 2am."
   const tl=[{y:"2023",l:"Started B.Tech IT",p:"GGSIPU, New Delhi"},{y:"Jun 2025",l:"Frontend Dev Intern",p:"Coding Bits"},{y:"Nov 2025",l:"Freelance Full-Stack Dev",p:"2 Clients · MERN Stack"},{y:"2026",l:"Software Dev Intern",p:"WinProFX · Currently"}]
   return(<section id="about" className="py-28 px-6" style={{borderTop:"1px solid rgba(59,130,246,0.05)"}}>
-    <div ref={ref} className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+    <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
       <div>
-        <motion.p initial={{opacity:0,x:-18}} animate={inView?{opacity:1,x:0}:{}} className="font-mono text-sm mb-3" style={{color:"#3B82F6"}}>// about.me</motion.p>
-        <motion.h2 initial={{opacity:0,y:30}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:0.08}}
-          className="font-black mb-8 leading-none" style={{fontSize:"clamp(2.2rem,6vw,5rem)"}}>Who Am I?</motion.h2>
-        <p className="text-gray-400 text-lg leading-relaxed mb-12">
-          {bio.split(" ").map((w,i)=>(
-            <motion.span key={i} initial={{opacity:0,y:8}} animate={inView?{opacity:1,y:0}:{}}
-              transition={{delay:0.15+i*0.012,duration:0.38}} className="inline-block mr-1.5">{w}</motion.span>
-          ))}
-        </p>
+        <p className="font-mono text-sm mb-3" style={{color:"#3B82F6"}}>// about.me</p>
+        <ScrollTextScrub as="h2" className="font-black mb-8 leading-none text-white block" style={{fontSize:"clamp(2.2rem,6vw,5rem)"}}>
+          Who Am I?
+        </ScrollTextScrub>
+        <div className="text-gray-400 text-lg leading-relaxed mb-12">
+          <ScrollTextScrub>{bio}</ScrollTextScrub>
+        </div>
         <div className="relative pl-8" style={{borderLeft:"1px solid rgba(59,130,246,0.14)"}}>
           {tl.map((t,i)=>(
-            <motion.div key={i} initial={{opacity:0,x:-22}} animate={inView?{opacity:1,x:0}:{}} transition={{delay:0.5+i*0.12}} className="relative mb-8 last:mb-0">
+            <ScrollElementScrub key={i} className="relative mb-8 last:mb-0">
               <span className="absolute rounded-full" style={{left:-34,top:5,width:14,height:14,background:"#080808",border:"2px solid #3B82F6",boxShadow:"0 0 14px rgba(59,130,246,0.7)"}}/>
               <div className="font-mono text-xs mb-0.5" style={{color:"#3B82F6"}}>{t.y}</div>
               <div className="font-bold text-white">{t.l}</div>
               <div className="text-gray-500 text-sm">{t.p}</div>
-            </motion.div>
+            </ScrollElementScrub>
           ))}
         </div>
       </div>
-      <div className="flex flex-col items-center gap-7">
+      <ScrollElementScrub className="flex flex-col items-center gap-7">
         <div className="relative group flex items-center justify-center w-full h-[360px] md:h-[400px]">
-          {/* Animated blurred aura behind */}
           <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             className="absolute inset-0 m-auto w-64 h-64 rounded-full blur-[80px]" style={{ background: "#3B82F6" }} />
           
-          {/* Main Photo Container */}
           <motion.div whileHover={{ scale: 1.05, rotate: -2 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="relative z-10 w-64 h-80 rounded-[2rem] overflow-hidden shadow-2xl"
             style={{ border: "2px solid rgba(59,130,246,0.3)", boxShadow: "0 20px 50px -10px rgba(59,130,246,0.3)" }}>
             <img src="/photos/hero.jpeg" alt="Manohar Kumar" className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110" />
-            
-            {/* Glassmorphism gradient overlay */}
             <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%)" }}/>
           </motion.div>
 
-          {/* Floating badges */}
           <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             className="absolute z-20 -right-4 top-20 px-4 py-2 rounded-2xl backdrop-blur-md font-bold text-xs"
             style={{ background: "rgba(10,10,10,0.8)", border: "1px solid rgba(59,130,246,0.3)", color: "#3B82F6" }}>
@@ -424,28 +668,26 @@ function About() {
         </div>
         <div className="flex flex-wrap gap-3 justify-center">
           {[["📍","Delhi, India"],["🎓","GGSIPU · 8.5 CGPA"],["💼","2 Clients"],["⚡","Open to Work"]].map(([ic,tx],i)=>(
-            <motion.span key={i} initial={{opacity:0,scale:0.8}} animate={inView?{opacity:1,scale:1}:{}} transition={{delay:0.6+i*0.07}}
-              className="px-4 py-2 rounded-full text-sm font-medium"
+            <span key={i} className="px-4 py-2 rounded-full text-sm font-medium"
               style={{background:"rgba(14,14,14,0.9)",border:"1px solid rgba(59,130,246,0.1)",color:"#d0d0d0"}}>
               {ic} {tx}
-            </motion.span>
+            </span>
           ))}
         </div>
-        <motion.a href="/IManohar_Resume.pdf" download data-h initial={{opacity:0}} animate={inView?{opacity:1}:{}} transition={{delay:0.85}}
+        <a href="/IManohar_Resume.pdf" download data-h
           className="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all"
           style={{border:"1px solid rgba(59,130,246,0.25)",color:"#3B82F6"}}
           onMouseEnter={e=>{e.currentTarget.style.background="rgba(59,130,246,0.07)"}}
           onMouseLeave={e=>{e.currentTarget.style.background="transparent"}}>
           <Download size={15}/>Download Resume
-        </motion.a>
-      </div>
+        </a>
+      </ScrollElementScrub>
     </div>
   </section>)
 }
 
 // ──────────────────────── SKILLS ────────────────────────
 function Skills() {
-  const ref=useRef(), inView=useInView(ref,{once:true,margin:"-80px"})
   const prof=[{name:"JavaScript / React",v:90,c:"#F7DF1E"},{name:"Node.js / Express",v:82,c:"#339933"},{name:"Python / FastAPI",v:75,c:"#3776AB"},{name:"C++",v:70,c:"#00599C"},{name:"MongoDB / MySQL",v:80,c:"#47A248"}]
   return(<section id="skills" className="py-28 px-6 relative overflow-hidden" style={{borderTop:"1px solid rgba(59,130,246,0.05)"}}>
     <div className="absolute inset-0 pointer-events-none opacity-[0.14]"
@@ -453,32 +695,33 @@ function Skills() {
     <div className="absolute inset-0 pointer-events-none opacity-50">
       <Suspense fallback={null}><SkillsScene/></Suspense>
     </div>
-    <div ref={ref} className="max-w-7xl mx-auto relative z-10">
-      <motion.p initial={{opacity:0}} animate={inView?{opacity:1}:{}} className="font-mono text-sm mb-3" style={{color:"#3B82F6"}}>// skills.json</motion.p>
-      <motion.h2 initial={{opacity:0,y:28}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:0.08}}
-        className="font-black mb-14 leading-none" style={{fontSize:"clamp(2.2rem,6vw,5rem)"}}>
-        Tech Stack<motion.span animate={{opacity:[1,0,1]}} transition={{duration:0.8,repeat:Infinity}} style={{color:"#3B82F6"}}>_</motion.span>
-      </motion.h2>
+    <div className="max-w-7xl mx-auto relative z-10">
+      <p className="font-mono text-sm mb-3" style={{color:"#3B82F6"}}>// skills.json</p>
+      <ScrollTextScrub as="h2" className="font-black mb-14 leading-none text-white block" style={{fontSize:"clamp(2.2rem,6vw,5rem)"}}>
+        Tech Stack
+      </ScrollTextScrub>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
         {SKILLS.map((cat,i)=>(
-          <motion.div key={cat.title} initial={{opacity:0,y:26}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:i*0.06}}
-            whileHover={{y:-6,transition:{duration:0.2}}}
-            className="p-6 rounded-2xl transition-colors"
-            style={{background:"rgba(10,10,10,0.88)",border:"1px solid rgba(59,130,246,0.08)",backdropFilter:"blur(12px)"}}
-            onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(59,130,246,0.28)"}
-            onMouseLeave={e=>e.currentTarget.style.borderColor="rgba(59,130,246,0.08)"}>
-            <div className="flex items-center gap-3 mb-5"><span className="text-2xl">{cat.icon}</span><h3 className="font-bold text-white">{cat.title}</h3></div>
-            <div className="flex flex-wrap gap-2">
-              {cat.items.map(item=>(
-                <span key={item} className="skill-pill px-3 py-1 rounded-full text-xs font-medium text-gray-400"
-                  style={{background:"#080808",border:"1px solid rgba(59,130,246,0.1)"}}>{item}</span>
-              ))}
-            </div>
-          </motion.div>
+          <ScrollElementScrub key={cat.title}>
+            <motion.div
+              whileHover={{y:-6,transition:{duration:0.2}}}
+              className="p-6 rounded-2xl transition-colors h-full"
+              style={{background:"rgba(10,10,10,0.88)",border:"1px solid rgba(59,130,246,0.08)",backdropFilter:"blur(12px)"}}
+              onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(59,130,246,0.28)"}
+              onMouseLeave={e=>e.currentTarget.style.borderColor="rgba(59,130,246,0.08)"}>
+              <div className="flex items-center gap-3 mb-5"><span className="text-2xl">{cat.icon}</span><h3 className="font-bold text-white">{cat.title}</h3></div>
+              <div className="flex flex-wrap gap-2">
+                {cat.items.map(item=>(
+                  <span key={item} className="skill-pill px-3 py-1 rounded-full text-xs font-medium text-gray-400"
+                    style={{background:"#080808",border:"1px solid rgba(59,130,246,0.1)"}}>{item}</span>
+                ))}
+              </div>
+            </motion.div>
+          </ScrollElementScrub>
         ))}
       </div>
       <div className="grid lg:grid-cols-2 gap-8">
-        <div className="p-8 rounded-2xl" style={{background:"rgba(10,10,10,0.9)",border:"1px solid rgba(59,130,246,0.08)"}}>
+        <ScrollElementScrub className="p-8 rounded-2xl" style={{background:"rgba(10,10,10,0.9)",border:"1px solid rgba(59,130,246,0.08)"}}>
           <h3 className="text-lg font-bold mb-7 text-white">Proficiency</h3>
           <div className="space-y-5">
             {prof.map((p,i)=>(
@@ -488,15 +731,13 @@ function Skills() {
                   <span className="font-mono font-bold" style={{color:p.c}}>{p.v}%</span>
                 </div>
                 <div className="h-1.5 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.05)"}}>
-                  <motion.div initial={{width:0}} animate={inView?{width:`${p.v}%`}:{}}
-                    transition={{delay:0.3+i*0.1,duration:1.4,ease:"easeOut"}}
-                    className="h-full rounded-full" style={{background:`linear-gradient(90deg,${p.c},#38BDF8)`}}/>
+                  <div className="h-full rounded-full transition-all duration-1000" style={{width:`${p.v}%`, background:`linear-gradient(90deg,${p.c},#38BDF8)`}}/>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-        <div className="p-8 rounded-2xl flex flex-col" style={{background:"rgba(10,10,10,0.9)",border:"1px solid rgba(59,130,246,0.08)"}}>
+        </ScrollElementScrub>
+        <ScrollElementScrub className="p-8 rounded-2xl flex flex-col" style={{background:"rgba(10,10,10,0.9)",border:"1px solid rgba(59,130,246,0.08)"}}>
           <h3 className="text-lg font-bold mb-5 text-white">DSA Progress</h3>
           <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
             <div className="text-7xl font-black font-mono mb-2"
@@ -516,7 +757,7 @@ function Skills() {
               </div>
             </div>
           </div>
-        </div>
+        </ScrollElementScrub>
       </div>
     </div>
   </section>)
@@ -526,8 +767,6 @@ function Skills() {
 function Projects() {
   const [activeProject, setActiveProject] = useState(null)
   const [cols, setCols] = useState(2)
-  const ref = useRef()
-  const inView = useInView(ref, { once: true, margin: "-80px" })
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -544,23 +783,24 @@ function Projects() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 pointer-events-none opacity-[0.12]" 
            style={{ background: "radial-gradient(ellipse at top, #3B82F6, transparent 70%)" }} />
            
-      <div ref={ref} className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20 flex flex-col items-center">
-          <motion.p initial={{opacity:0}} animate={inView?{opacity:1}:{}} className="font-mono text-sm mb-4 tracking-widest uppercase" style={{color:"#3B82F6"}}>
+          <p className="font-mono text-sm mb-4 tracking-widest uppercase" style={{color:"#3B82F6"}}>
             // project.gallery
-          </motion.p>
-          <motion.h2 initial={{opacity:0,y:30}} animate={inView?{opacity:1,y:0}:{}} transition={{delay:0.1, duration:0.7}}
-            className="font-black leading-none"
+          </p>
+          <ScrollTextScrub as="h2" className="font-black leading-none block"
             style={{fontSize:"clamp(3rem,9vw,6rem)", background:"linear-gradient(180deg,#FFFFFF 0%,#808080 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent"}}>
             Selected Work
-          </motion.h2>
-          <motion.p initial={{opacity:0}} animate={inView?{opacity:1}:{}} transition={{delay:0.2}} className="mt-6 text-gray-400 max-w-2xl text-base md:text-lg">
-            Explore my entire arsenal of projects at a glance. Click on any card to reveal in-depth architectures, tech stacks, and live previews.
-          </motion.p>
+          </ScrollTextScrub>
+          <div className="mt-6 text-gray-400 max-w-2xl text-base md:text-lg">
+            <ScrollTextScrub>
+              Explore my entire arsenal of projects at a glance. Click on any card to reveal in-depth architectures, tech stacks, and live previews.
+            </ScrollTextScrub>
+          </div>
         </div>
 
         {/* View Toggle Controls */}
-        <motion.div initial={{opacity:0, y:10}} animate={inView?{opacity:1, y:0}:{}} transition={{delay:0.3}} className="flex justify-center mb-12">
+        <ScrollElementScrub className="flex justify-center mb-12">
           <div className="flex bg-[#0a0a0a] border border-white/10 p-1.5 rounded-full items-center">
              <span className="text-gray-500 text-xs font-mono uppercase tracking-widest px-4 hidden sm:block">Columns:</span>
              {[2, 3, 4].map(num => (
@@ -573,7 +813,7 @@ function Projects() {
                </button>
              ))}
           </div>
-        </motion.div>
+        </ScrollElementScrub>
 
         {/* Grid View (All visible at once) */}
         <div className={`grid gap-6 md:gap-8 transition-all duration-500 ${
@@ -582,63 +822,61 @@ function Projects() {
           "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
         }`}>
           {PROJECTS.map((p, i) => (
-            <motion.div
-              layoutId={`card-${p.num}`}
-              key={p.num}
-              onClick={() => setActiveProject(p)}
-              initial={{ opacity: 0, y: 50 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ scale: 1.02, y: -8 }}
-              className="group cursor-pointer rounded-3xl overflow-hidden bg-[#080808] border border-white/5 relative flex flex-col h-[400px] shadow-2xl"
-            >
-              {/* Image Box */}
-              <motion.div layoutId={`image-${p.num}`} className="h-[65%] w-full relative overflow-hidden bg-[#0d0d0d]">
-                {p.imgs && p.imgs.length > 0 ? (
-                  <img src={p.imgs[0]} alt={p.title} className="w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center font-black text-6xl opacity-10" style={{color: p.color}}>{p.num}</div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-transparent opacity-90" />
+            <ScrollElementScrub key={p.num}>
+              <motion.div
+                layoutId={`card-${p.num}`}
+                onClick={() => setActiveProject(p)}
+                whileHover={{ scale: 1.02, y: -8 }}
+                className="group cursor-pointer rounded-3xl overflow-hidden bg-[#080808] border border-white/5 relative flex flex-col h-[400px] shadow-2xl"
+              >
+                {/* Image Box */}
+                <motion.div layoutId={`image-${p.num}`} className="h-[65%] w-full relative overflow-hidden bg-[#0d0d0d]">
+                  {p.imgs && p.imgs.length > 0 ? (
+                    <img src={p.imgs[0]} alt={p.title} className="w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center font-black text-6xl opacity-10" style={{color: p.color}}>{p.num}</div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-transparent opacity-90" />
+                  
+                  {/* Floating Tag */}
+                  <div className="absolute top-5 left-5">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md"
+                      style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: `1px solid ${p.color}40` }}>
+                      {p.type}
+                    </span>
+                  </div>
+                </motion.div>
                 
-                {/* Floating Tag */}
-                <div className="absolute top-5 left-5">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md"
-                    style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: `1px solid ${p.color}40` }}>
-                    {p.type}
-                  </span>
+                {/* Content Summary */}
+                <div className="p-6 flex flex-col flex-1 relative z-10 -mt-8">
+                   <div className="flex justify-between items-end mb-3">
+                     <motion.h3 layoutId={`title-${p.num}`} className="text-xl md:text-2xl font-black text-white group-hover:text-[#3B82F6] transition-colors">{p.title}</motion.h3>
+                     <span className="font-mono text-sm text-gray-600">{p.num}</span>
+                   </div>
+                   
+                   <p className="text-gray-400 text-xs line-clamp-2 mb-4 flex-1">
+                     {p.desc}
+                   </p>
+                   
+                   <motion.div layoutId={`tech-${p.num}`} className="flex flex-wrap gap-2">
+                     {p.tech.slice(0, 3).map(t => (
+                       <span key={t} className="px-2 py-1 rounded-md text-[10px] font-bold" style={{ background: "rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color: "#aaa" }}>{t}</span>
+                     ))}
+                     {p.tech.length > 3 && <span className="px-2 py-1 rounded-md text-[10px] font-bold text-gray-500">+{p.tech.length - 3}</span>}
+                   </motion.div>
                 </div>
               </motion.div>
-              
-              {/* Content Summary */}
-              <div className="p-6 flex flex-col flex-1 relative z-10 -mt-8">
-                 <div className="flex justify-between items-end mb-3">
-                   <motion.h3 layoutId={`title-${p.num}`} className="text-xl md:text-2xl font-black text-white group-hover:text-[#3B82F6] transition-colors">{p.title}</motion.h3>
-                   <span className="font-mono text-sm text-gray-600">{p.num}</span>
-                 </div>
-                 
-                 <p className="text-gray-400 text-xs line-clamp-2 mb-4 flex-1">
-                   {p.desc}
-                 </p>
-                 
-                 <motion.div layoutId={`tech-${p.num}`} className="flex flex-wrap gap-2">
-                   {p.tech.slice(0, 3).map(t => (
-                     <span key={t} className="px-2 py-1 rounded-md text-[10px] font-bold" style={{ background: "rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color: "#aaa" }}>{t}</span>
-                   ))}
-                   {p.tech.length > 3 && <span className="px-2 py-1 rounded-md text-[10px] font-bold text-gray-500">+{p.tech.length - 3}</span>}
-                 </motion.div>
-              </div>
-            </motion.div>
+            </ScrollElementScrub>
           ))}
         </div>
         
-        <motion.div initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} className="mt-16 flex justify-center">
+        <ScrollElementScrub className="mt-16 flex justify-center">
           <a href="https://github.com/Manohar-2905" target="_blank" rel="noreferrer" data-h 
             className="flex items-center gap-3 px-8 py-4 rounded-full font-bold text-sm transition-all hover:scale-105 hover:bg-[#3B82F6] hover:text-black"
             style={{ border: "1px solid rgba(59,130,246,0.3)", color: "#3B82F6" }}>
             Explore GitHub Profile <ArrowUp size={16} className="rotate-45" />
           </a>
-        </motion.div>
+        </ScrollElementScrub>
       </div>
 
       {/* Expanded Modal View */}
@@ -748,11 +986,12 @@ function Experience() {
   return(<section id="experience" className="py-24 px-6" style={{borderTop:"1px solid rgba(59,130,246,0.05)"}}>
     <div className="max-w-4xl mx-auto">
       <p className="font-mono text-sm mb-3" style={{color:"#3B82F6"}}>// career.log</p>
-      <h2 className="font-black mb-12 leading-none" style={{fontSize:"clamp(2.2rem,6vw,4.5rem)"}}>Experience</h2>
+      <ScrollTextScrub as="h2" className="font-black mb-12 leading-none text-white block" style={{fontSize:"clamp(2.2rem,6vw,4.5rem)"}}>
+        Experience
+      </ScrollTextScrub>
       <div className="relative border-l border-gray-800 ml-3 md:ml-0 md:border-none space-y-8">
         {items.map((it,i)=>(
-          <motion.div key={i} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.5}}
-            className="relative pl-8 md:pl-0 md:grid md:grid-cols-[200px_1fr] gap-8 items-start group">
+          <ScrollElementScrub key={i} className="relative pl-8 md:pl-0 md:grid md:grid-cols-[200px_1fr] gap-8 items-start group">
             <div className="md:hidden absolute left-[-4.5px] top-2 w-2 h-2 rounded-full" style={{background:it.c,boxShadow:`0 0 8px ${it.c}`}}/>
             <div className="mb-2 md:mb-0 mt-1.5">
               <p className="font-mono text-sm text-gray-500">{it.period}</p>
@@ -768,20 +1007,18 @@ function Experience() {
               <ul className="space-y-3">
                 {it.pts.map((pt,k)=>(
                   <li key={k} className="flex gap-3 text-sm text-gray-400 leading-relaxed">
-                    <span className="flex-shrink-0 mt-0.5" style={{color:it.c}}>▹</span><span>{pt}</span>
+                    <span className="flex-shrink-0 mt-0.5" style={{color:it.c}}>▹</span>
+                    <ScrollTextScrub>{pt}</ScrollTextScrub>
                   </li>
                 ))}
               </ul>
             </div>
-          </motion.div>
+          </ScrollElementScrub>
         ))}
       </div>
     </div>
   </section>)
 }
-
-// ──────────────────────── CERTIFICATIONS ────────────────────────
-
 
 // ──────────────────────── HACKATHONS ────────────────────────
 function Hackathons() {
@@ -796,33 +1033,36 @@ function Hackathons() {
     </div>
     <div className="max-w-7xl mx-auto relative">
       <p className="font-mono text-sm mb-3" style={{color:"#3B82F6"}}>// hackathons.log</p>
-      <h2 className="font-black mb-12 leading-none" style={{fontSize:"clamp(2.2rem,6vw,5rem)"}}>Hackathon Arena 🏆</h2>
+      <ScrollTextScrub as="h2" className="font-black mb-12 leading-none text-white block" style={{fontSize:"clamp(2.2rem,6vw,5rem)"}}>
+        Hackathon Arena 🏆
+      </ScrollTextScrub>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {HACKS.map((h,i)=>(
-          <motion.div key={i} initial={{opacity:0,y:80}} whileInView={{opacity:1,y:0}} viewport={{once:true}}
-            transition={{delay:i*0.13,type:"spring",bounce:0.42}} whileHover={{y:-8,transition:{duration:0.22}}}
-            className="p-6 rounded-2xl" style={{background:"rgba(59,130,246,0.024)",backdropFilter:"blur(10px)",border:"1px solid rgba(59,130,246,0.14)"}}>
-            <div className="text-5xl mb-4">{h.icon}</div>
-            <h3 className="text-xl font-bold mb-3 text-white">{h.title}</h3>
-            {[["Event",h.event],["Date",h.date],["Role",h.role],["Built",h.built]].map(([k,v])=>(
-              <p key={k} className="text-sm text-gray-400 mb-1.5"><span style={{color:"#3B82F6"}}>{k}:</span> {v}</p>
-            ))}
-            <div className="flex items-center justify-between mt-4">
-              <span className="inline-block px-3 py-1.5 rounded-full text-xs font-bold"
-                style={{background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.3)",color:"#3B82F6"}}>{h.result}</span>
-              <Trophy size={22} style={{color:h.medal,filter:`drop-shadow(0 0 7px ${h.medal})`}}/>
-            </div>
-            {h.img ? (
-              <div className="mt-4 h-40 rounded-xl overflow-hidden border border-[rgba(59,130,246,0.2)] bg-black/40">
-                <img src={h.img} alt={h.title} className="w-full h-full object-contain p-2 transition-transform duration-300 hover:scale-105" />
+          <ScrollElementScrub key={i}>
+            <motion.div whileHover={{y:-8,transition:{duration:0.22}}}
+              className="p-6 rounded-2xl h-full" style={{background:"rgba(59,130,246,0.024)",backdropFilter:"blur(10px)",border:"1px solid rgba(59,130,246,0.14)"}}>
+              <div className="text-5xl mb-4">{h.icon}</div>
+              <h3 className="text-xl font-bold mb-3 text-white">{h.title}</h3>
+              {[["Event",h.event],["Date",h.date],["Role",h.role],["Built",h.built]].map(([k,v])=>(
+                <p key={k} className="text-sm text-gray-400 mb-1.5"><span style={{color:"#3B82F6"}}>{k}:</span> {v}</p>
+              ))}
+              <div className="flex items-center justify-between mt-4">
+                <span className="inline-block px-3 py-1.5 rounded-full text-xs font-bold"
+                  style={{background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.3)",color:"#3B82F6"}}>{h.result}</span>
+                <Trophy size={22} style={{color:h.medal,filter:`drop-shadow(0 0 7px ${h.medal})`}}/>
               </div>
-            ) : (
-              <div className="mt-4 h-28 rounded-xl flex items-center justify-center"
-                style={{background:"linear-gradient(135deg,rgba(59,130,246,0.06),rgba(56,189,248,0.06))",border:"1px dashed rgba(59,130,246,0.1)"}}>
-                <span className="text-gray-600 text-xs font-mono">[ Certificate Image ]</span>
-              </div>
-            )}
-          </motion.div>
+              {h.img ? (
+                <div className="mt-4 h-40 rounded-xl overflow-hidden border border-[rgba(59,130,246,0.2)] bg-black/40">
+                  <img src={h.img} alt={h.title} className="w-full h-full object-contain p-2 transition-transform duration-300 hover:scale-105" />
+                </div>
+              ) : (
+                <div className="mt-4 h-28 rounded-xl flex items-center justify-center"
+                  style={{background:"linear-gradient(135deg,rgba(59,130,246,0.06),rgba(56,189,248,0.06))",border:"1px dashed rgba(59,130,246,0.1)"}}>
+                  <span className="text-gray-600 text-xs font-mono">[ Certificate Image ]</span>
+                </div>
+              )}
+            </motion.div>
+          </ScrollElementScrub>
         ))}
       </div>
     </div>
@@ -852,25 +1092,22 @@ function Contact() {
     <div className="max-w-3xl mx-auto text-center relative z-10 w-full">
       <h2 className="font-black leading-none mb-10" style={{fontSize:"clamp(2.5rem,7vw,5.5rem)"}}>
         {lines.map((line,li)=>(
-          <motion.div key={li} initial={{y:40,opacity:0}} whileInView={{y:0,opacity:1}} viewport={{once:true}}
-            transition={{delay:li*0.15,duration:0.6,ease:"easeOut"}}
-            style={{background:"linear-gradient(135deg,#3B82F6,#38BDF8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
+          <ScrollTextScrub key={li} as="div" style={{background:"linear-gradient(135deg,#3B82F6,#38BDF8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
             {line}
-          </motion.div>
+          </ScrollTextScrub>
         ))}
       </h2>
-      <motion.p initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}}
-        className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-        Open to internships, full-time roles, freelance projects, and cool collabs.
-      </motion.p>
-      <motion.div initial={{opacity:0,scale:0.8}} whileInView={{opacity:1,scale:1}} viewport={{once:true}} className="flex justify-center mb-14">
+      <div className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+        <ScrollTextScrub>Open to internships, full-time roles, freelance projects, and cool collabs.</ScrollTextScrub>
+      </div>
+      <ScrollElementScrub className="flex justify-center mb-14">
         <MagBtn onClick={()=>window.location.href="mailto:manoharkumar6206@gmail.com"}
           className="px-10 py-4 rounded-full text-lg font-bold text-black flex items-center gap-2 transition-transform hover:scale-105"
           style={{background:"linear-gradient(135deg,#3B82F6,#38BDF8)",boxShadow:"0 0 55px rgba(59,130,246,0.35)"}}>
           <Sparkles size={18}/>Send a Message
         </MagBtn>
-      </motion.div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      </ScrollElementScrub>
+      <ScrollElementScrub className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {icon:copied?<Check size={22}/>:<Mail size={22}/>,label:copied?"Copied!":"manoharkumar6206@gmail.com",onClick:cp},
           {icon:<Linkedin size={22}/>,label:"linkedin/in/manohar-kumar",href:"https://www.linkedin.com/in/manohar-kumar-661981294/"},
@@ -889,7 +1126,7 @@ function Contact() {
             </button>
           )
         })}
-      </div>
+      </ScrollElementScrub>
     </div>
   </section>)
 }
@@ -1023,15 +1260,22 @@ export default function App() {
     if(loading) return
     return()=>ScrollTrigger.getAll().forEach(t=>t.kill())
   },[loading])
-  return(<>
-    <AnimatePresence>{loading&&<Loader onDone={()=>setLoading(false)}/>}</AnimatePresence>
-    {!loading&&(<>
-      <ShootingStars/><Cursor/><Trail/><ProgressBar/><Nav/>
-      <main>
-        <Hero/><Marquee/><About/><Experience/><Skills/>
-        <Projects/><Hackathons/><Contact/>
-      </main>
-      <Footer/><BackToTop/><EasterEgg/>
-    </>)}
-  </>)
+
+  return(
+    <div className="relative w-full min-h-screen bg-[#080808]">
+      {loading && <Loader onDone={()=>{
+        setLoading(false)
+        ScrollTrigger.refresh()
+      }} />}
+
+      <div className="main-reveal" style={{ scale: 0.96, opacity: 0.85, transformOrigin: "center top", willChange: "transform, opacity" }}>
+        <ShootingStars/><Cursor/><Trail/><ProgressBar/><Nav/>
+        <main>
+          <Hero/><Marquee/><About/><Experience/><Skills/>
+          <Projects/><Hackathons/><Contact/>
+        </main>
+        <Footer/><BackToTop/><EasterEgg/>
+      </div>
+    </div>
+  )
 }
