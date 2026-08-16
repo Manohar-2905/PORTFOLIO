@@ -3,12 +3,14 @@
 // Orbital Photo Ring · Cinematic Horizontal Projects · GSAP + R3F
 // ================================================================
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react"
+import { createPortal } from "react-dom"
 import { motion, useScroll, useTransform, useInView,
          AnimatePresence, useMotionValue, useSpring } from "framer-motion"
 import { Github, Linkedin, Mail, MapPin, ExternalLink,
          Trophy, ChevronDown, Menu, X, Check, ArrowUp, Download, Sparkles } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import Lenis from "lenis"
 
 const HeroScene    = lazy(() => import("./three/HeroScene.jsx"))
 const ProfileScene = lazy(() => import("./three/ProfileScene.jsx"))
@@ -34,48 +36,86 @@ const SKILLS = [
 ]
 
 const PROJECTS = [
-  { num:"01", title:"Spotify Web Clone",          type:"Frontend",
-    tech:["HTML5","CSS3","Vanilla JavaScript","DOM Manipulation"],
-    desc:"A fully functional Spotify web player clone featuring music playback, playlist rendering, and responsive UI built with vanilla web technologies.",
-    color:"#1DB954",
-    imgs:["/photos/spotify-main.png","/photos/spotify-sub1.png","/photos/spotify-sub2.png"],
-    live:"https://manoharkumar.github.io/spotify/", github:"https://github.com/manoharkumar/spotify" },
-  { num:"02", title:"CRUD Application",           type:"Backend",
-    tech:["Node.js","Express.js","MongoDB","Mongoose"],
-    desc:"A complete RESTful CRUD application with persistent MongoDB storage, deployed on Render for robust cloud availability.",
-    color:"#F59E0B",
-    imgs:[],
-    live:"https://crud-operation-4-56id.onrender.com", github:"https://github.com/manoharkumar/crud-operation" },
-  { num:"03", title:"Studify Hub",                type:"Full Stack",
-    tech:["HTML5","CSS3","JavaScript","LocalStorage"],
-    desc:"Student productivity platform with integrated code editor, API tools, and workflow automation. Modular architecture reduced manual effort by 30%.",
-    color:"#8B5CF6",
-    imgs:["/photos/studify-main.png","/photos/studify-sub1.png","/photos/studify-sub2.png"],
-    live:"https://manoharkumar.github.io/StudifyHub/", github:"https://github.com/manoharkumar/StudifyHub" },
-  { num:"04", title:"Dasgupta Maiti Portal",      type:"MERN · Freelance",
-    tech:["React","Node.js","Express","MongoDB","JWT Auth","Cloudinary","Nodemailer"],
-    desc:"Secure enterprise portal for a Kolkata law firm — JWT/RBAC auth, Cloudinary media, Zoho Mail integration, full SSL + DNS production deploy.",
-    color:"#EC4899",
-    imgs:["/photos/dasgupta-main.png","/photos/dasgupta-sub1.png","/photos/dasgupta-sub2.png"],
-    live:"https://dasguptamaitiassociates.com/", github:"https://github.com/manoharkumar/CAweb" },
-  { num:"05", title:"Yashoda Bhawan System",      type:"Full Stack · Freelance",
-    tech:["React","Node.js","MongoDB","Express","Tailwind CSS"],
-    desc:"Hotel management system with admin dashboard for Jharkhand property. Optimised DB schema, REST APIs, performance-focused production deployment.",
-    color:"#3B82F6",
-    imgs:["/photos/yashoda-main.png","/photos/yashoda-sub1.png","/photos/yashoda-sub2.png"],
-    live:"#", github:"#" },
-  { num:"06", title:"Bank Statement Processor",   type:"Python · Automation",
-    tech:["Python","Gmail API","Hashlib (SHA)","macOS launchd"],
-    desc:"Background daemon that ingests Gmail attachments, classifies banks, SHA-deduplicates documents — slashing manual effort by 90–95%.",
-    color:"#38BDF8",
-    imgs:[],
-    live:"#", github:"https://github.com/manoharkumar/Automated-Bank-Statement-Processing-System" },
-  { num:"07", title:"AI Project Estimator",       type:"AI/ML · Full Stack",
-    tech:["FastAPI","React","Gemini AI","MongoDB","Tailwind CSS"],
-    desc:"Multi-agent AI system that analyses GitHub repos and generates architecture reports, cost & timeline estimates. Built Repo Intelligence for deep codebase analysis.",
-    color:"#3B82F6",
-    imgs:["/photos/ai-estimator-main.png","/photos/ai-estimator-sub1.png","/photos/ai-estimator-sub2.png"],
-    live:"#", github:"https://github.com/manoharkumar/AI-Project-Estimator" },
+  {
+    num: "01",
+    title: "Studify Hub",
+    type: "Full Stack",
+    tech: ["HTML5", "CSS3", "JavaScript", "LocalStorage", "Code Editor API"],
+    desc: "Student productivity platform with integrated code editor, API tools, and workflow automation. Modular architecture reduced manual effort by 30%.",
+    highlights: [
+      "Integrated lightweight browser IDE with syntax highlighting and instant compilation",
+      "Built study timer, task tracker, and developer quick-reference utilities",
+      "Modular client-side architecture that slashed routine manual setup by 30%"
+    ],
+    color: "#8B5CF6",
+    imgs: ["/photos/studify-main.png", "/photos/studify-sub1.png", "/photos/studify-sub2.png"],
+    live: "https://manohar-2905.github.io/StudifyHub/",
+    github: "https://github.com/Manohar-2905/StudifyHub"
+  },
+  {
+    num: "02",
+    title: "Dasgupta Maiti Portal",
+    type: "MERN · Freelance",
+    tech: ["React", "Node.js", "Express", "MongoDB", "JWT Auth", "Cloudinary", "Nodemailer"],
+    desc: "Secure enterprise portal for a Kolkata law firm — JWT/RBAC auth, Cloudinary media, Zoho Mail integration, full SSL + DNS production deploy.",
+    highlights: [
+      "Role-Based Access Control (RBAC) separating clients, lawyers, and administrators",
+      "Secure document and case management with Cloudinary cloud storage and instant previews",
+      "Transactional client notifications via Zoho Mail API & Nodemailer integration"
+    ],
+    color: "#EC4899",
+    imgs: ["/photos/dasgupta-main.png", "/photos/dasgupta-sub1.png", "/photos/dasgupta-sub2.png"],
+    live: "https://dasguptamaitiassociates.com/",
+    github: "https://github.com/Manohar-2905/CAwebsite1"
+  },
+  {
+    num: "03",
+    title: "Yashoda Bhawan System",
+    type: "Full Stack · Freelance",
+    tech: ["React", "Node.js", "MongoDB", "Express", "Tailwind CSS"],
+    desc: "Hotel management system with admin dashboard for Jharkhand property. Optimised DB schema, REST APIs, performance-focused production deployment.",
+    highlights: [
+      "Real-time room availability matrix and reservation calendar management",
+      "Optimized MongoDB indexing and aggregation pipelines for reporting analytics",
+      "Streamlined guest check-in/check-out workflow with invoice generator"
+    ],
+    color: "#3B82F6",
+    imgs: ["/photos/yashoda-main.png", "/photos/yashoda-sub1.png", "/photos/yashoda-sub2.png"],
+    live: "https://yashodabhawan.in/",
+    github: "https://github.com/Manohar-2905/HMS"
+  },
+  {
+    num: "04",
+    title: "Bank Statement Processor",
+    type: "Python · Automation",
+    tech: ["Python", "Gmail API", "Hashlib (SHA-256)", "macOS launchd", "OAuth 2.0"],
+    desc: "Background daemon that ingests Gmail attachments, classifies banks, SHA-deduplicates documents — slashing manual effort by 90–95%.",
+    highlights: [
+      "Autonomous background daemon running via system launchd with OAuth 2.0 security",
+      "SHA-256 cryptographic checksum hashing preventing duplicate statement uploads",
+      "Automated extraction, classification, and organization cutting manual work by 95%"
+    ],
+    color: "#38BDF8",
+    imgs: ["/photos/bankAutomate.png", "/photos/backAutomate1.png"],
+    live: "https://drive.google.com/drive/folders/1FFbw6AWhhSe51KMzEjFmuqonHnsIlvnA?usp=drive_link",
+    github: "https://github.com/Manohar-2905/EmailAutomate"
+  },
+  {
+    num: "05",
+    title: "AI Project Estimator",
+    type: "AI/ML · Full Stack",
+    tech: ["FastAPI", "React", "Gemini AI", "MongoDB", "Tailwind CSS", "Multi-Agent"],
+    desc: "Multi-agent AI system that analyses GitHub repos and generates architecture reports, cost & timeline estimates. Built Repo Intelligence for deep codebase analysis.",
+    highlights: [
+      "Repo Intelligence engine parsing dependencies, code complexity, and framework metrics",
+      "Google Gemini 1.5 Pro integration for structured sprint planning & cost estimation",
+      "Asynchronous FastAPI backend streaming real-time analysis steps to React frontend"
+    ],
+    color: "#3B82F6",
+    imgs: ["/photos/ai-estimator-main.png", "/photos/ai-estimator-sub1.png", "/photos/ai-estimator-sub2.png"],
+    live: "https://software-cost-esstimator-frontend.vercel.app/",
+    github: "https://github.com/Manohar-2905/SoftwareCost_esstimator_frontend"
+  },
 ]
 
 
@@ -103,39 +143,183 @@ function useTypewriter(words, speed=75, pause=2200) {
 
 // ──────────────────────── CURSOR ────────────────────────
 function Cursor() {
-  const [pos,setPos]=useState({x:-200,y:-200}), [hov,setHov]=useState(false), [clk,setClk]=useState(false)
-  const rx=useSpring(-200,{damping:22,stiffness:260}), ry=useSpring(-200,{damping:22,stiffness:260})
-  useEffect(()=>{
-    const mv=e=>{setPos({x:e.clientX,y:e.clientY});rx.set(e.clientX);ry.set(e.clientY)}
-    const mo=e=>setHov(!!e.target.closest("a,button,[data-h]"))
-    const md=()=>setClk(true), mu=()=>setClk(false)
-    window.addEventListener("mousemove",mv); window.addEventListener("mouseover",mo)
-    window.addEventListener("mousedown",md); window.addEventListener("mouseup",mu)
-    return()=>{ window.removeEventListener("mousemove",mv); window.removeEventListener("mouseover",mo)
-      window.removeEventListener("mousedown",md); window.removeEventListener("mouseup",mu) }
-  },[rx,ry])
-  return(<>
-    <motion.div className="fixed top-0 left-0 pointer-events-none rounded-full z-[9999]"
-      animate={{x:pos.x-4,y:pos.y-4,scale:clk?0.4:hov?0:1}} transition={{type:"spring",damping:38,stiffness:520}}
-      style={{width:8,height:8,background:"#3B82F6",boxShadow:"0 0 14px #3B82F6,0 0 28px rgba(59,130,246,0.4)"}}/>
-    <motion.div className="fixed top-0 left-0 pointer-events-none rounded-full border z-[9998]"
-      style={{x:rx,y:ry,width:40,height:40,marginLeft:-20,marginTop:-20,borderColor:"#3B82F6",background:hov?"rgba(59,130,246,0.06)":"transparent"}}
-      animate={{scale:clk?0.7:hov?2.2:1}} transition={{type:"spring",damping:18,stiffness:130}}/>
-  </>)
+  const mouseX = useMotionValue(-100)
+  const mouseY = useMotionValue(-100)
+  const [isHovered, setIsHovered] = useState(false)
+  const [isClicked, setIsClicked] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+
+  // Fluid magnetic spring for outer ring
+  const springConfig = { damping: 26, stiffness: 280, mass: 0.5 }
+  const ringX = useSpring(mouseX, springConfig)
+  const ringY = useSpring(mouseY, springConfig)
+
+  useEffect(() => {
+    if (typeof window === "undefined" || window.matchMedia("(pointer: coarse)").matches) return
+
+    const handleMouseMove = (e) => {
+      mouseX.set(e.clientX)
+      mouseY.set(e.clientY)
+      if (!isVisible) setIsVisible(true)
+    }
+
+    const handleMouseOver = (e) => {
+      const target = e.target
+      if (!target || !(target instanceof Element)) return
+      const isInteractive = !!target.closest(
+        'a, button, [role="button"], input, textarea, select, canvas, [data-cursor], [data-h], .cursor-pointer, label'
+      )
+      setIsHovered(isInteractive)
+    }
+
+    const handleMouseDown = () => setIsClicked(true)
+    const handleMouseUp = () => setIsClicked(false)
+    const handleMouseLeave = () => setIsVisible(false)
+    const handleMouseEnter = () => setIsVisible(true)
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
+    window.addEventListener("mouseover", handleMouseOver, { passive: true })
+    window.addEventListener("mousedown", handleMouseDown, { passive: true })
+    window.addEventListener("mouseup", handleMouseUp, { passive: true })
+    document.documentElement.addEventListener("mouseleave", handleMouseLeave)
+    document.documentElement.addEventListener("mouseenter", handleMouseEnter)
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseover", handleMouseOver)
+      window.removeEventListener("mousedown", handleMouseDown)
+      window.removeEventListener("mouseup", handleMouseUp)
+      document.documentElement.removeEventListener("mouseleave", handleMouseLeave)
+      document.documentElement.removeEventListener("mouseenter", handleMouseEnter)
+    }
+  }, [mouseX, mouseY, isVisible])
+
+  if (typeof document === "undefined") return null
+
+  return createPortal(
+    <div className="custom-cursor-layer pointer-events-none fixed inset-0 z-[2147483647] overflow-hidden">
+      {/* Precision Pointer Dot — Instant 0ms Sync */}
+      <motion.div
+        className="fixed top-0 left-0 rounded-full pointer-events-none"
+        style={{
+          x: mouseX,
+          y: mouseY,
+          translateX: "-50%",
+          translateY: "-50%",
+          width: 8,
+          height: 8,
+          background: "#38BDF8",
+          boxShadow: "0 0 10px #38BDF8, 0 0 20px rgba(56,189,248,0.7)",
+          opacity: isVisible ? 1 : 0,
+        }}
+        animate={{
+          scale: isClicked ? 0.5 : isHovered ? 0.35 : 1,
+        }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+      />
+
+      {/* Fluid Inertial Follower Ring */}
+      <motion.div
+        className="fixed top-0 left-0 rounded-full pointer-events-none border border-[#3B82F6]"
+        style={{
+          x: ringX,
+          y: ringY,
+          translateX: "-50%",
+          translateY: "-50%",
+          width: 36,
+          height: 36,
+          opacity: isVisible ? 1 : 0,
+        }}
+        animate={{
+          scale: isClicked ? 0.75 : isHovered ? 1.85 : 1,
+          borderColor: isHovered ? "rgba(56,189,248,0.9)" : "rgba(59,130,246,0.6)",
+          backgroundColor: isHovered ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.02)",
+          boxShadow: isHovered
+            ? "0 0 24px rgba(59,130,246,0.35), inset 0 0 10px rgba(56,189,248,0.2)"
+            : "0 0 0px rgba(0,0,0,0)",
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      />
+    </div>,
+    document.body
+  )
 }
 
 function Trail() {
-  const [pts,setPts]=useState([]), id=useRef(0)
-  useEffect(()=>{
-    const mv=e=>setPts(p=>[...p.slice(-6),{id:id.current++,x:e.clientX,y:e.clientY}])
-    window.addEventListener("mousemove",mv); return()=>window.removeEventListener("mousemove",mv)
-  },[])
-  return(<div className="fixed inset-0 pointer-events-none z-[9997]">
-    {pts.map(p=>(
-      <motion.div key={p.id} initial={{opacity:0.55,scale:1}} animate={{opacity:0,scale:0}} transition={{duration:0.6}}
-        className="absolute rounded-full" style={{left:p.x-3,top:p.y-3,width:6,height:6,background:"#3B82F6",boxShadow:"0 0 6px #3B82F6"}}/>
-    ))}
-  </div>)
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    if (typeof window === "undefined" || window.matchMedia("(pointer: coarse)").matches) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    let animationFrameId
+    let particles = []
+    let lastPos = { x: -100, y: -100 }
+
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resize()
+    window.addEventListener("resize", resize)
+
+    const onMouseMove = (e) => {
+      const dx = e.clientX - lastPos.x
+      const dy = e.clientY - lastPos.y
+      const dist = Math.hypot(dx, dy)
+      if (dist > 5) {
+        lastPos = { x: e.clientX, y: e.clientY }
+        particles.push({
+          x: e.clientX,
+          y: e.clientY,
+          radius: 3,
+          alpha: 0.55,
+          decay: 0.032,
+        })
+        if (particles.length > 25) particles.shift()
+      }
+    }
+
+    window.addEventListener("mousemove", onMouseMove, { passive: true })
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i]
+        p.alpha -= p.decay
+        p.radius = Math.max(0, p.radius - 0.07)
+        if (p.alpha <= 0 || p.radius <= 0) {
+          particles.splice(i, 1)
+          continue
+        }
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(59, 130, 246, ${p.alpha})`
+        ctx.shadowBlur = 8
+        ctx.shadowColor = "#38BDF8"
+        ctx.fill()
+      }
+      animationFrameId = requestAnimationFrame(render)
+    }
+    render()
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+      window.removeEventListener("resize", resize)
+      window.removeEventListener("mousemove", onMouseMove)
+    }
+  }, [])
+
+  if (typeof document === "undefined") return null
+
+  return createPortal(
+    <canvas
+      ref={canvasRef}
+      className="custom-cursor-layer fixed inset-0 pointer-events-none z-[2147483640]"
+    />,
+    document.body
+  )
 }
 
 function ProgressBar() {
@@ -315,125 +499,55 @@ function Loader({onDone}) {
   )
 }
 
-// ──────────────────────── SCROLL SCRUB HELPERS ────────────────────────
-function ScrollTextScrub({ children, className = "", style = {}, as: Component = "div", start = "top 98%", end = "top 82%" }) {
-  const containerRef = useRef(null)
-
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-
-    const chars = el.querySelectorAll(".scrub-char")
-    if (!chars.length) return
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(chars,
-        { opacity: 0, y: 16, filter: "blur(6px)" },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          stagger: 0.02,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el,
-            start,
-            end,
-            scrub: 0.3,
-            invalidateOnRefresh: true,
-            fastScrollEnd: true,
-            onLeave: () => gsap.set(chars, { opacity: 1, y: 0, filter: "blur(0px)" }),
-            onLeaveBack: () => gsap.set(chars, { opacity: 0, y: 16, filter: "blur(6px)" }),
-          }
-        }
-      )
-    }, el)
-
-    return () => ctx.revert()
-  }, [children, start, end])
-
-  if (typeof children !== "string") {
-    return <Component className={className} style={style}>{children}</Component>
-  }
-
-  const words = children.split(" ")
-
+// ──────────────────────── SCROLL REVEAL HELPERS ────────────────────────
+function ScrollTextScrub({ children, className = "", style = {}, as: Component = "div" }) {
   return (
-    <Component ref={containerRef} className={`inline-block ${className}`} style={style}>
-      {words.map((word, wi) => (
-        <span key={wi} className="inline-block whitespace-nowrap mr-[0.25em]">
-          {word.split("").map((char, ci) => (
-            <span
-              key={ci}
-              className="scrub-char inline-block"
-              style={{ opacity: 0, willChange: "opacity, transform, filter" }}
-            >
-              {char}
-            </span>
-          ))}
-        </span>
-      ))}
-    </Component>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      className={`inline-block ${className}`}
+      style={{ ...style, willChange: "transform, opacity" }}
+    >
+      {children}
+    </motion.div>
   )
 }
 
-function ScrollElementScrub({ children, className = "", style = {}, start = "top 98%", end = "top 85%" }) {
-  const ref = useRef(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 40, scale: 0.96, filter: "blur(6px)" },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          filter: "blur(0px)",
-          ease: "none",
-          scrollTrigger: {
-            trigger: el,
-            start,
-            end,
-            scrub: 0.3,
-            invalidateOnRefresh: true,
-            fastScrollEnd: true,
-            onLeave: () => gsap.set(el, { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }),
-            onLeaveBack: () => gsap.set(el, { opacity: 0, y: 40, scale: 0.96, filter: "blur(6px)" }),
-          }
-        }
-      )
-    }, el)
-
-    return () => ctx.revert()
-  }, [start, end])
-
+function ScrollElementScrub({ children, className = "", style = {}, delay = 0 }) {
   return (
-    <div ref={ref} className={className} style={{ ...style, opacity: 0, willChange: "transform, opacity, filter" }}>
+    <motion.div
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+      style={{ ...style, willChange: "transform, opacity" }}
+    >
       {children}
-    </div>
+    </motion.div>
   )
 }
 
 // ──────────────────────── NAV ────────────────────────
 function Nav() {
-  const [scrolled,setScrolled]=useState(false), [open,setOpen]=useState(false)
-  useEffect(()=>{ 
-    const fn=()=>setScrolled(window.scrollY>50); 
-    const handleHash = () => setTimeout(() => { ScrollTrigger.update(); ScrollTrigger.refresh() }, 400);
-    window.addEventListener("scroll",fn,{passive:true});
-    window.addEventListener("hashchange", handleHash);
-    return()=>{ window.removeEventListener("scroll",fn); window.removeEventListener("hashchange", handleHash); } 
-  },[])
+  const [scrolled, setScrolled] = useState(false), [open, setOpen] = useState(false)
+  useEffect(() => { 
+    const fn = () => setScrolled(window.scrollY > 40)
+    window.addEventListener("scroll", fn, { passive: true })
+    return () => window.removeEventListener("scroll", fn)
+  }, [])
 
   const scrollToSection = (id) => {
     setOpen(false)
     const el = document.getElementById(id)
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" })
-      setTimeout(() => { ScrollTrigger.update(); ScrollTrigger.refresh() }, 500)
+      if (window.__lenis) {
+        window.__lenis.scrollTo(el, { offset: -50, duration: 1.1 })
+      } else {
+        el.scrollIntoView({ behavior: "smooth" })
+      }
     }
   }
 
@@ -763,38 +877,230 @@ function Skills() {
   </section>)
 }
 
+// ──────────────────────── PROJECT DETAILS MODAL ────────────────────────
+function ProjectModal({ project, onClose }) {
+  const [selectedImg, setSelectedImg] = useState(
+    project.imgs && project.imgs.length > 0 ? project.imgs[0] : null
+  )
+
+  useEffect(() => {
+    setSelectedImg(project.imgs && project.imgs.length > 0 ? project.imgs[0] : null)
+  }, [project])
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose()
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    if (window.__lenis) window.__lenis.stop()
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      if (window.__lenis) window.__lenis.start()
+      document.body.style.overflow = "auto"
+    }
+  }, [onClose])
+
+  if (typeof document === "undefined") return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[90000] flex items-center justify-center p-3 sm:p-6 md:p-8">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.22 }}
+        onClick={onClose}
+        className="fixed inset-0 bg-black/80 backdrop-blur-md"
+      />
+
+      {/* Modal Dialog */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 20 }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative z-10 w-full max-w-5xl max-h-[90vh] rounded-3xl bg-[#0a0a0a] border border-white/15 overflow-hidden flex flex-col lg:flex-row shadow-[0_20px_80px_rgba(0,0,0,0.9)]"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          aria-label="Close project modal"
+          data-h
+          className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-[#3B82F6] hover:text-black hover:scale-110 transition-all"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Left Side: Media Showcase */}
+        <div className="w-full lg:w-1/2 bg-[#050505] p-5 sm:p-7 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/10">
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-[#0d0d0d] border border-white/10 mb-4 flex items-center justify-center">
+            {selectedImg ? (
+              <img
+                src={selectedImg}
+                alt={project.title}
+                className="w-full h-full object-cover transition-all duration-300"
+              />
+            ) : (
+              <div className="text-center p-6">
+                <div className="text-6xl font-black mb-2 opacity-25 font-mono" style={{ color: project.color }}>
+                  {project.num}
+                </div>
+                <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">
+                  Architecture & Backend System
+                </p>
+              </div>
+            )}
+            <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider backdrop-blur-md"
+              style={{ background: "rgba(0,0,0,0.7)", color: project.color, border: `1px solid ${project.color}40` }}>
+              {project.type}
+            </div>
+          </div>
+
+          {/* Thumbnail Selector */}
+          {project.imgs && project.imgs.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {project.imgs.map((src, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedImg(src)}
+                  data-h
+                  className={`relative w-20 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${
+                    selectedImg === src
+                      ? "border-[#3B82F6] scale-105 shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+                      : "border-white/15 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img src={src} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Side: Detailed Case Study */}
+        <div
+          data-lenis-prevent
+          className="w-full lg:w-1/2 p-6 sm:p-8 flex flex-col overflow-y-auto max-h-[60vh] lg:max-h-[85vh] bg-[#0a0a0a]"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <span
+              className="text-xs font-bold font-mono px-3 py-1 rounded-full uppercase tracking-wider"
+              style={{ background: `${project.color}18`, color: project.color, border: `1px solid ${project.color}35` }}
+            >
+              {project.type}
+            </span>
+            <span className="font-mono text-sm font-bold text-gray-500">#{project.num}</span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">
+            {project.title}
+          </h3>
+
+          <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
+            {project.desc}
+          </p>
+
+          {/* Key Engineering Highlights */}
+          {project.highlights && project.highlights.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 mb-3 flex items-center gap-2">
+                <Sparkles size={14} className="text-[#3B82F6]" /> Key Architecture & Achievements
+              </h4>
+              <ul className="space-y-2.5">
+                {project.highlights.map((h, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-300">
+                    <span className="text-[#3B82F6] font-bold mt-0.5">▹</span>
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Tech Stack */}
+          <div className="mb-8">
+            <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
+              Technologies Used
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {project.tech.map((t) => (
+                <span
+                  key={t}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#e0e0e0" }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Links */}
+          <div className="flex flex-wrap gap-3 mt-auto pt-4 border-t border-white/10">
+            {project.live && project.live !== "#" ? (
+              <a
+                href={project.live}
+                target="_blank"
+                rel="noreferrer"
+                data-h
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-black transition-transform hover:scale-105 active:scale-95 shadow-lg"
+                style={{ background: project.color, boxShadow: `0 10px 30px -8px ${project.color}80` }}
+              >
+                Live Preview <ExternalLink size={16} />
+              </a>
+            ) : (
+              <span className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-xs text-gray-400 bg-white/5 border border-white/10">
+                Client / Private Deployment
+              </span>
+            )}
+
+            {project.github && project.github !== "#" && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noreferrer"
+                data-h
+                className="flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl font-bold text-sm text-white bg-white/10 hover:bg-white/20 border border-white/15 transition-all hover:scale-105 active:scale-95"
+              >
+                <Github size={18} /> Source Code
+              </a>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </div>,
+    document.body
+  )
+}
+
 // ──────────────────────── PROJECTS — EXPANDABLE GALLERY ────────────────────────
 function Projects() {
   const [activeProject, setActiveProject] = useState(null)
   const [cols, setCols] = useState(2)
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (activeProject) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "auto"
-    }
-  }, [activeProject])
-
   return (
-    <section id="projects" className="py-32 px-6 relative" style={{ borderTop:"1px solid rgba(59,130,246,0.05)", background: "#000" }}>
+    <section id="projects" className="py-32 px-6 relative" style={{ borderTop: "1px solid rgba(59,130,246,0.05)", background: "#000" }}>
       {/* Background decoration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 pointer-events-none opacity-[0.12]" 
            style={{ background: "radial-gradient(ellipse at top, #3B82F6, transparent 70%)" }} />
            
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20 flex flex-col items-center">
-          <p className="font-mono text-sm mb-4 tracking-widest uppercase" style={{color:"#3B82F6"}}>
+          <p className="font-mono text-sm mb-4 tracking-widest uppercase" style={{ color: "#3B82F6" }}>
             // project.gallery
           </p>
           <ScrollTextScrub as="h2" className="font-black leading-none block"
-            style={{fontSize:"clamp(3rem,9vw,6rem)", background:"linear-gradient(180deg,#FFFFFF 0%,#808080 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent"}}>
+            style={{ fontSize: "clamp(3rem,9vw,6rem)", background: "linear-gradient(180deg,#FFFFFF 0%,#808080 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Selected Work
           </ScrollTextScrub>
           <div className="mt-6 text-gray-400 max-w-2xl text-base md:text-lg">
             <ScrollTextScrub>
-              Explore my entire arsenal of projects at a glance. Click on any card to reveal in-depth architectures, tech stacks, and live previews.
+              Explore my entire portfolio of full-stack systems, automation bots, and AI tools. Click on any card to view detailed architecture breakdowns, screenshots, and live demos.
             </ScrollTextScrub>
           </div>
         </div>
@@ -807,6 +1113,7 @@ function Projects() {
                <button
                  key={num}
                  onClick={() => setCols(num)}
+                 data-h
                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cols === num ? 'bg-[#3B82F6] text-black shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                >
                  {num}
@@ -815,55 +1122,89 @@ function Projects() {
           </div>
         </ScrollElementScrub>
 
-        {/* Grid View (All visible at once) */}
+        {/* Grid View */}
         <div className={`grid gap-6 md:gap-8 transition-all duration-500 ${
           cols === 2 ? "grid-cols-1 md:grid-cols-2" :
           cols === 3 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" :
           "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
         }`}>
-          {PROJECTS.map((p, i) => (
+          {PROJECTS.map((p) => (
             <ScrollElementScrub key={p.num}>
               <motion.div
-                layoutId={`card-${p.num}`}
+                whileHover={{ y: -6 }}
                 onClick={() => setActiveProject(p)}
-                whileHover={{ scale: 1.02, y: -8 }}
-                className="group cursor-pointer rounded-3xl overflow-hidden bg-[#080808] border border-white/5 relative flex flex-col h-[400px] shadow-2xl"
+                data-h
+                className="group cursor-pointer rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10 hover:border-[#3B82F6]/50 relative flex flex-col h-[420px] shadow-2xl transition-all duration-300"
+                style={{ transform: "translateZ(0)" }}
               >
                 {/* Image Box */}
-                <motion.div layoutId={`image-${p.num}`} className="h-[65%] w-full relative overflow-hidden bg-[#0d0d0d]">
+                <div className="h-[55%] w-full relative overflow-hidden bg-[#0d0d0d]">
                   {p.imgs && p.imgs.length > 0 ? (
-                    <img src={p.imgs[0]} alt={p.title} className="w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700" />
+                    <img
+                      src={p.imgs[0]}
+                      alt={p.title}
+                      className="w-full h-full object-cover opacity-80 group-hover:scale-108 group-hover:opacity-100 transition-transform duration-500"
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center font-black text-6xl opacity-10" style={{color: p.color}}>{p.num}</div>
+                    <div className="w-full h-full flex items-center justify-center font-black text-6xl opacity-15 font-mono" style={{ color: p.color }}>
+                      {p.num}
+                    </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-transparent opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent opacity-95" />
                   
                   {/* Floating Tag */}
-                  <div className="absolute top-5 left-5">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md"
-                      style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: `1px solid ${p.color}40` }}>
+                  <div className="absolute top-4 left-4">
+                    <span
+                      className="px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider backdrop-blur-md"
+                      style={{ background: "rgba(0,0,0,0.7)", color: p.color, border: `1px solid ${p.color}40` }}
+                    >
                       {p.type}
                     </span>
                   </div>
-                </motion.div>
+
+                  {/* Hover "View Details" Pill */}
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#3B82F6] text-black shadow-[0_0_12px_rgba(59,130,246,0.6)]">
+                      View Details ↗
+                    </span>
+                  </div>
+                </div>
                 
                 {/* Content Summary */}
-                <div className="p-6 flex flex-col flex-1 relative z-10 -mt-8">
-                   <div className="flex justify-between items-end mb-3">
-                     <motion.h3 layoutId={`title-${p.num}`} className="text-xl md:text-2xl font-black text-white group-hover:text-[#3B82F6] transition-colors">{p.title}</motion.h3>
-                     <span className="font-mono text-sm text-gray-600">{p.num}</span>
+                <div className="p-6 flex flex-col flex-1 relative z-10 -mt-6">
+                   <div className="flex justify-between items-start mb-2">
+                     <h3 className="text-xl font-black text-white group-hover:text-[#3B82F6] transition-colors line-clamp-1">
+                       {p.title}
+                     </h3>
+                     <span className="font-mono text-sm font-bold text-gray-500 ml-2">{p.num}</span>
                    </div>
                    
                    <p className="text-gray-400 text-xs line-clamp-2 mb-4 flex-1">
                      {p.desc}
                    </p>
                    
-                   <motion.div layoutId={`tech-${p.num}`} className="flex flex-wrap gap-2">
-                     {p.tech.slice(0, 3).map(t => (
-                       <span key={t} className="px-2 py-1 rounded-md text-[10px] font-bold" style={{ background: "rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color: "#aaa" }}>{t}</span>
+                   <div className="flex flex-wrap gap-1.5 mb-4">
+                     {p.tech.slice(0, 3).map((t) => (
+                       <span
+                         key={t}
+                         className="px-2 py-0.5 rounded-md text-[10px] font-medium"
+                         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#aaa" }}
+                       >
+                         {t}
+                       </span>
                      ))}
-                     {p.tech.length > 3 && <span className="px-2 py-1 rounded-md text-[10px] font-bold text-gray-500">+{p.tech.length - 3}</span>}
-                   </motion.div>
+                     {p.tech.length > 3 && (
+                       <span className="px-2 py-0.5 rounded-md text-[10px] font-medium text-gray-500">
+                         +{p.tech.length - 3}
+                       </span>
+                     )}
+                   </div>
+
+                   {/* Card Footer with Click Prompt */}
+                   <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400 group-hover:text-[#38BDF8] transition-colors">
+                     <span className="font-medium">Explore Architecture & Preview</span>
+                     <ArrowUp size={14} className="rotate-45 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                   </div>
                 </div>
               </motion.div>
             </ScrollElementScrub>
@@ -879,90 +1220,13 @@ function Projects() {
         </ScrollElementScrub>
       </div>
 
-      {/* Expanded Modal View */}
+      {/* Expanded Modal View via Portal */}
       <AnimatePresence>
         {activeProject && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveProject(null)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[100]"
-            />
-            <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 md:p-8 pointer-events-none">
-              <motion.div
-                layoutId={`card-${activeProject.num}`}
-                className="w-full max-w-6xl h-[90vh] md:h-[85vh] rounded-[2rem] bg-[#0a0a0a] border border-white/10 overflow-hidden flex flex-col md:flex-row pointer-events-auto shadow-[0_0_80px_rgba(0,0,0,0.8)] relative"
-              >
-                 {/* Close Button */}
-                 <button onClick={() => setActiveProject(null)} className="absolute top-6 right-6 z-50 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all hover:rotate-90">
-                   <X size={24} />
-                 </button>
-
-                 {/* Left: Image Box */}
-                 <motion.div layoutId={`image-${activeProject.num}`} className="w-full md:w-[55%] h-[40%] md:h-full relative bg-[#050505]">
-                    {activeProject.imgs && activeProject.imgs.length > 0 ? (
-                      <img src={activeProject.imgs[0]} alt={activeProject.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center font-black text-9xl opacity-10" style={{color: activeProject.color}}>{activeProject.num}</div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0a0a0a] via-transparent to-transparent opacity-90" />
-                    
-                    <div className="absolute bottom-6 left-6 flex gap-2">
-                       {activeProject.imgs.map((src, idx) => (
-                         <div key={idx} className="w-16 h-12 rounded-lg border border-white/20 overflow-hidden opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
-                           <img src={src} className="w-full h-full object-cover" />
-                         </div>
-                       ))}
-                    </div>
-                 </motion.div>
-                 
-                 {/* Right: Detailed Content */}
-                 <div className="w-full md:w-[45%] h-[60%] md:h-full p-8 md:p-12 flex flex-col overflow-y-auto bg-[#0a0a0a]">
-                    <div className="flex items-center gap-3 mb-6">
-                      <span className="font-mono text-sm font-bold px-3 py-1 rounded-full"
-                        style={{ background: `${activeProject.color}15`, color: activeProject.color, border: `1px solid ${activeProject.color}35` }}>
-                        {activeProject.type}
-                      </span>
-                      <span className="font-mono text-xl opacity-20 font-black">{activeProject.num}</span>
-                    </div>
-
-                    <motion.h3 layoutId={`title-${activeProject.num}`} className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-                      {activeProject.title}
-                    </motion.h3>
-                    
-                    <motion.div layoutId={`tech-${activeProject.num}`} className="flex flex-wrap gap-2 mb-8">
-                      {activeProject.tech.map(t => (
-                        <span key={t} className="px-3 py-1.5 rounded-lg text-xs font-bold" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#e0e0e0" }}>{t}</span>
-                      ))}
-                    </motion.div>
-                    
-                    <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.2}} className="flex-1">
-                      <h4 className="text-white font-bold mb-3">About the Project</h4>
-                      <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-8">
-                        {activeProject.desc}
-                      </p>
-                    </motion.div>
-                    
-                    <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.3}} className="flex gap-4 mt-auto pt-6 border-t border-white/10">
-                      <a href={activeProject.live} target="_blank" rel="noreferrer" data-h
-                        className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl font-black text-black text-sm transition-transform hover:scale-105"
-                        style={{ background: activeProject.color, boxShadow: `0 10px 40px -10px ${activeProject.color}80` }}>
-                        Live Preview <ExternalLink size={18}/>
-                      </a>
-                      <a href={activeProject.github} target="_blank" rel="noreferrer" data-h
-                        className="w-14 h-14 flex items-center justify-center rounded-xl transition-all hover:scale-105 shrink-0"
-                        style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff" }}
-                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
-                        onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}>
-                        <Github size={22}/>
-                      </a>
-                    </motion.div>
-                 </div>
-              </motion.div>
-            </div>
-          </>
+          <ProjectModal
+            project={activeProject}
+            onClose={() => setActiveProject(null)}
+          />
         )}
       </AnimatePresence>
     </section>
@@ -1079,56 +1343,136 @@ function MagBtn({children,onClick,style:s,className}) {
     style={{x:sx,y:sy,...s}} onClick={onClick} className={className} data-h>{children}</motion.button>)
 }
 function Contact() {
-  const [copied,setCopied]=useState(false)
-  const cp=()=>{navigator.clipboard.writeText("manoharkumar6206@gmail.com");setCopied(true);setTimeout(()=>setCopied(false),2200)}
-  const lines=["Let's Build","Something","Amazing."]
-  return(<section id="contact" className="relative py-28 px-6 overflow-hidden min-h-screen flex items-center" style={{borderTop:"1px solid rgba(59,130,246,0.05)"}}>
-    <motion.div animate={{x:[0,90,0],y:[0,45,0]}} transition={{duration:14,repeat:Infinity,ease:"easeInOut"}}
-      className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
-      style={{background:"radial-gradient(circle,rgba(59,130,246,0.11) 0%,transparent 70%)",filter:"blur(80px)"}}/>
-    <motion.div animate={{x:[0,-80,0],y:[0,-45,0]}} transition={{duration:16,repeat:Infinity,ease:"easeInOut"}}
-      className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full pointer-events-none"
-      style={{background:"radial-gradient(circle,rgba(56,189,248,0.09) 0%,transparent 70%)",filter:"blur(70px)"}}/>
-    <div className="max-w-3xl mx-auto text-center relative z-10 w-full">
-      <h2 className="font-black leading-none mb-10" style={{fontSize:"clamp(2.5rem,7vw,5.5rem)"}}>
-        {lines.map((line,li)=>(
-          <ScrollTextScrub key={li} as="div" style={{background:"linear-gradient(135deg,#3B82F6,#38BDF8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-            {line}
+  const [copied, setCopied] = useState(false)
+  const cp = () => {
+    navigator.clipboard.writeText("manoharkumar6206@gmail.com")
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2200)
+  }
+
+  return (
+    <section id="contact" className="relative py-32 px-6 overflow-hidden min-h-screen flex items-center justify-center" style={{ borderTop: "1px solid rgba(59,130,246,0.08)", background: "#050505" }}>
+      {/* Dynamic Ambient Background Glows */}
+      <motion.div
+        animate={{ x: [0, 60, 0], y: [0, 30, 0], scale: [1, 1.15, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full pointer-events-none opacity-20"
+        style={{ background: "radial-gradient(circle, #38BDF8 0%, #3B82F6 40%, transparent 70%)", filter: "blur(90px)" }}
+      />
+
+      <div className="max-w-4xl mx-auto text-center relative z-10 w-full flex flex-col items-center">
+        {/* Giant Hero Heading */}
+        <div className="mb-8 select-none">
+          <ScrollTextScrub
+            as="h2"
+            className="font-black tracking-tight leading-[0.95] text-center"
+            style={{
+              fontSize: "clamp(3.2rem, 9.5vw, 6.8rem)",
+              background: "linear-gradient(135deg, #38BDF8 0%, #2DD4BF 45%, #60A5FA 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              filter: "drop-shadow(0 0 35px rgba(56, 189, 248, 0.25))"
+            }}
+          >
+            Let's Build<br />Something<br />Amazing.
           </ScrollTextScrub>
-        ))}
-      </h2>
-      <div className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-        <ScrollTextScrub>Open to internships, full-time roles, freelance projects, and cool collabs.</ScrollTextScrub>
+        </div>
+
+        {/* Subtitle */}
+        <div className="text-gray-300 text-base sm:text-xl mb-10 max-w-xl mx-auto font-normal leading-relaxed">
+          <ScrollTextScrub>
+            Open to internships, full-time roles, freelance projects, and cool collabs.
+          </ScrollTextScrub>
+        </div>
+
+        {/* Glowing Send a Message CTA */}
+        <ScrollElementScrub className="flex justify-center mb-16">
+          <MagBtn
+            onClick={() => window.location.href = "mailto:manoharkumar6206@gmail.com"}
+            className="px-10 py-4 sm:px-12 sm:py-4.5 rounded-full text-base sm:text-lg font-black text-black flex items-center gap-3 transition-transform hover:scale-105 active:scale-95 cursor-pointer shadow-2xl"
+            style={{
+              background: "linear-gradient(135deg, #2DD4BF 0%, #38BDF8 100%)",
+              boxShadow: "0 0 45px rgba(45, 212, 191, 0.45), 0 0 80px rgba(56, 189, 248, 0.25)"
+            }}
+          >
+            <Sparkles size={20} className="text-black" />
+            <span>Send a Message</span>
+          </MagBtn>
+        </ScrollElementScrub>
+
+        {/* Social / Contact Grid Cards */}
+        <ScrollElementScrub className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-3xl">
+          {[
+            {
+              icon: copied ? <Check size={22} className="text-[#2DD4BF]" /> : <Mail size={22} />,
+              label: copied ? "Copied to Clipboard!" : "manoharkumar6206@gmail.com",
+              onClick: cp
+            },
+            {
+              icon: <Linkedin size={22} />,
+              label: "linkedin/in/manohar-kumar",
+              href: "https://www.linkedin.com/in/manohar-kumar-661981294/"
+            },
+            {
+              icon: <Github size={22} />,
+              label: "github/Manohar-2905",
+              href: "https://github.com/Manohar-2905"
+            },
+            {
+              icon: <MapPin size={22} />,
+              label: "Delhi, India"
+            },
+          ].map((c, i) => {
+            const cls = "p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all group border"
+            const sty = { background: "rgba(10, 10, 10, 0.8)", borderColor: "rgba(255, 255, 255, 0.08)", backdropFilter: "blur(12px)" }
+            const hi = (e) => {
+              e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.4)"
+              e.currentTarget.style.background = "rgba(18, 18, 18, 0.95)"
+              e.currentTarget.style.transform = "translateY(-3px)"
+            }
+            const ho = (e) => {
+              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)"
+              e.currentTarget.style.background = "rgba(10, 10, 10, 0.8)"
+              e.currentTarget.style.transform = "translateY(0)"
+            }
+            return c.href ? (
+              <a
+                key={i}
+                href={c.href}
+                target="_blank"
+                rel="noreferrer"
+                data-h
+                className={cls}
+                style={sty}
+                onMouseEnter={hi}
+                onMouseLeave={ho}
+              >
+                <div className="text-[#38BDF8] group-hover:text-[#2DD4BF] transition-colors">{c.icon}</div>
+                <span className="text-xs text-gray-400 group-hover:text-white transition-colors break-all text-center font-medium">
+                  {c.label}
+                </span>
+              </a>
+            ) : (
+              <button
+                key={i}
+                onClick={c.onClick}
+                data-h
+                className={cls}
+                style={sty}
+                onMouseEnter={hi}
+                onMouseLeave={ho}
+              >
+                <div className="text-[#38BDF8] group-hover:text-[#2DD4BF] transition-colors">{c.icon}</div>
+                <span className="text-xs text-gray-400 group-hover:text-white transition-colors break-all text-center font-medium">
+                  {c.label}
+                </span>
+              </button>
+            )
+          })}
+        </ScrollElementScrub>
       </div>
-      <ScrollElementScrub className="flex justify-center mb-14">
-        <MagBtn onClick={()=>window.location.href="mailto:manoharkumar6206@gmail.com"}
-          className="px-10 py-4 rounded-full text-lg font-bold text-black flex items-center gap-2 transition-transform hover:scale-105"
-          style={{background:"linear-gradient(135deg,#3B82F6,#38BDF8)",boxShadow:"0 0 55px rgba(59,130,246,0.35)"}}>
-          <Sparkles size={18}/>Send a Message
-        </MagBtn>
-      </ScrollElementScrub>
-      <ScrollElementScrub className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {icon:copied?<Check size={22}/>:<Mail size={22}/>,label:copied?"Copied!":"manoharkumar6206@gmail.com",onClick:cp},
-          {icon:<Linkedin size={22}/>,label:"linkedin/in/manohar-kumar",href:"https://www.linkedin.com/in/manohar-kumar-661981294/"},
-          {icon:<Github size={22}/>,label:"github/Manohar-2905",href:"https://github.com/Manohar-2905"},
-          {icon:<MapPin size={22}/>,label:"Delhi, India"},
-        ].map((c,i)=>{
-          const cls="p-5 rounded-2xl flex flex-col items-center gap-2.5 transition-all",sty={background:"rgba(14,14,14,0.9)",border:"1px solid rgba(59,130,246,0.1)"}
-          const hi=e=>{e.currentTarget.style.borderColor="rgba(59,130,246,0.4)"},ho=e=>{e.currentTarget.style.borderColor="rgba(59,130,246,0.1)"}
-          return c.href?(
-            <a key={i} href={c.href} target="_blank" rel="noreferrer" data-h className={cls} style={sty} onMouseEnter={hi} onMouseLeave={ho}>
-              <div style={{color:"#3B82F6"}}>{c.icon}</div><span className="text-xs text-gray-400 break-all text-center">{c.label}</span>
-            </a>
-          ):(
-            <button key={i} onClick={c.onClick} data-h className={cls} style={sty} onMouseEnter={hi} onMouseLeave={ho}>
-              <div style={{color:"#3B82F6"}}>{c.icon}</div><span className="text-xs text-gray-400 break-all text-center">{c.label}</span>
-            </button>
-          )
-        })}
-      </ScrollElementScrub>
-    </div>
-  </section>)
+    </section>
+  )
 }
 
 function Footer() {
@@ -1146,16 +1490,37 @@ function Footer() {
 }
 
 function BackToTop() {
-  const [show,setShow]=useState(false)
-  useEffect(()=>{const fn=()=>setShow(window.scrollY>window.innerHeight*0.55);window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn)},[])
-  return(<AnimatePresence>
-    {show&&(<motion.button initial={{opacity:0,scale:0}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:0}}
-      onClick={()=>window.scrollTo({top:0,behavior:"smooth"})} data-h
-      className="fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center text-black z-40"
-      style={{background:"linear-gradient(135deg,#3B82F6,#38BDF8)",boxShadow:"0 0 30px rgba(59,130,246,0.55)"}}>
-      <ArrowUp size={20}/>
-    </motion.button>)}
-  </AnimatePresence>)
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const fn = () => setShow(window.scrollY > window.innerHeight * 0.55)
+    window.addEventListener("scroll", fn, { passive: true })
+    return () => window.removeEventListener("scroll", fn)
+  }, [])
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          onClick={() => {
+            if (window.__lenis) {
+              window.__lenis.scrollTo(0, { duration: 1.2 })
+            } else {
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }
+          }}
+          data-h
+          className="fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center text-black z-40 transition-transform hover:scale-110 active:scale-95"
+          style={{ background: "linear-gradient(135deg,#3B82F6,#38BDF8)", boxShadow: "0 0 30px rgba(59,130,246,0.55)" }}
+        >
+          <ArrowUp size={20} />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  )
 }
 
 function EasterEgg() {
@@ -1255,21 +1620,50 @@ function ShootingStars() {
 
 // ──────────────────────── APP ────────────────────────
 export default function App() {
-  const [loading,setLoading]=useState(true)
-  useEffect(()=>{
-    if(loading) return
-    return()=>ScrollTrigger.getAll().forEach(t=>t.kill())
-  },[loading])
+  const [loading, setLoading] = useState(true)
 
-  return(
+  useEffect(() => {
+    // Initialize Lenis smooth inertia scroll
+    const lenis = new Lenis({
+      duration: 1.15,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.5,
+      infinite: false,
+    })
+    window.__lenis = lenis
+
+    lenis.on('scroll', ScrollTrigger.update)
+
+    const updateTicker = (time) => {
+      lenis.raf(time * 1000)
+    }
+    gsap.ticker.add(updateTicker)
+    gsap.ticker.lagSmoothing(0)
+
+    return () => {
+      delete window.__lenis
+      lenis.destroy()
+      gsap.ticker.remove(updateTicker)
+      ScrollTrigger.getAll().forEach(t => t.kill())
+    }
+  }, [])
+
+  return (
     <div className="relative w-full min-h-screen bg-[#080808]">
-      {loading && <Loader onDone={()=>{
+      <Cursor/>
+      <Trail/>
+      <ProgressBar/>
+
+      {loading && <Loader onDone={() => {
         setLoading(false)
         ScrollTrigger.refresh()
+        if (window.__lenis) window.__lenis.resize()
       }} />}
 
       <div className="main-reveal" style={{ scale: 0.96, opacity: 0.85, transformOrigin: "center top", willChange: "transform, opacity" }}>
-        <ShootingStars/><Cursor/><Trail/><ProgressBar/><Nav/>
+        <ShootingStars/><Nav/>
         <main>
           <Hero/><Marquee/><About/><Experience/><Skills/>
           <Projects/><Hackathons/><Contact/>

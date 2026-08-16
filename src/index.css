@@ -17,15 +17,19 @@ body {
   background: #080808;
   color: #F0F0F0;
   overflow-x: hidden;
-  cursor: none;
 }
 
-@media (hover: none) {
-  body { cursor: auto; }
-  a, button { cursor: pointer !important; }
+@media (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
 }
 
-a, button { cursor: none; }
+@media (pointer: coarse) {
+  .custom-cursor-layer {
+    display: none !important;
+  }
+}
 
 ::selection { background: #3B82F6; color: #fff; }
 
@@ -34,6 +38,26 @@ a, button { cursor: none; }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, #3B82F6, #38BDF8);
   border-radius: 2px;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
 
 /* Film grain */
@@ -46,14 +70,21 @@ body::after {
   background-size: 180px 180px;
 }
 
+/* Smooth Interactive Elements */
+a, button {
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Skill pill hover */
 .skill-pill {
-  transition: background 0.22s, border-color 0.22s, color 0.22s;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 .skill-pill:hover {
-  background: rgba(59,130,246,0.09) !important;
-  border-color: rgba(59,130,246,0.45) !important;
-  color: #3B82F6 !important;
+  background: rgba(59,130,246,0.12) !important;
+  border-color: rgba(59,130,246,0.5) !important;
+  color: #38BDF8 !important;
+  transform: translateY(-2px);
 }
 
 /* 3D canvas */

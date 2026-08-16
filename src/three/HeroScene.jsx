@@ -96,7 +96,7 @@ function getTransform(d) {
 }
 
 /* ─── SINGLE PHOTO CARD ─── */
-function DepthCard({ url, physicalIndex, floatDelay=0, scrollIndexRef, targetIndexRef, glowColor="#3B82F6" }) {
+function DepthCard({ url, physicalIndex, floatDelay=0, scrollIndexRef, glowColor="#3B82F6" }) {
   const groupRef = useRef()
   const glowRef  = useRef()
   const scanRef  = useRef()
@@ -106,7 +106,7 @@ function DepthCard({ url, physicalIndex, floatDelay=0, scrollIndexRef, targetInd
   const H = 3.2 
   const W = H * aspect
 
-  useFrame(s => {
+  useFrame((s, delta) => {
     if (!groupRef.current) return
     const t = s.clock.elapsedTime
     
@@ -121,13 +121,14 @@ function DepthCard({ url, physicalIndex, floatDelay=0, scrollIndexRef, targetInd
     // Add subtle float
     const floatY = tf.pos[1] + Math.sin(t * 0.42 + floatDelay) * 0.13
 
-    // Smooth Lerp Animations
-    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, tf.pos[0], 0.1)
-    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, floatY, 0.1)
-    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, tf.pos[2], 0.1)
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, tf.rotY, 0.1)
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, tf.rotX, 0.1)
-    groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, tf.scale, 0.1))
+    // Delta-damped smooth animations (60/120/144/240Hz consistent)
+    const factor = 1 - Math.exp(-9 * delta)
+    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, tf.pos[0], factor)
+    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, floatY, factor)
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, tf.pos[2], factor)
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, tf.rotY, factor)
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, tf.rotX, factor)
+    groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, tf.scale, factor))
 
     if (glowRef.current) {
       const absD = Math.abs(distance)
@@ -142,17 +143,7 @@ function DepthCard({ url, physicalIndex, floatDelay=0, scrollIndexRef, targetInd
   })
 
   return (
-    <group ref={groupRef}
-      onPointerOver={(e) => { 
-        e.stopPropagation(); 
-        const currentMod = ((targetIndexRef.current % 5) + 5) % 5;
-        let diff = physicalIndex - currentMod;
-        if (diff > 2.5) diff -= 5;
-        if (diff < -2.5) diff += 5;
-        targetIndexRef.current += diff;
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => { document.body.style.cursor = 'auto' }}>
+    <group ref={groupRef}>
       <mesh position={[0, 0, -0.15]}>
         <planeGeometry args={[W+2.2, H+2.2]}/>
         <meshBasicMaterial color={glowColor} transparent opacity={0.03}
@@ -197,9 +188,10 @@ const CARDS = [
 
 /* ─── CAMERA PARALLAX ─── */
 function CamRig({ mx, my }) {
-  useFrame((state) => {
-    state.camera.position.x += (mx * 2.0 - state.camera.position.x) * 0.05
-    state.camera.position.y += (-my * 2.0 - state.camera.position.y) * 0.05
+  useFrame((state, delta) => {
+    const factor = 1 - Math.exp(-5 * delta)
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, mx * 1.5, factor)
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, -my * 1.5, factor)
     state.camera.lookAt(0, 0, 0)
   })
   return null
@@ -225,8 +217,9 @@ function AccentOrb({ position, color, size=0.22, speed=0.8, delay=0 }) {
 
 /* ─── MAIN EXPORT ─── */
 function CarouselController({ scrollIndexRef, targetIndexRef }) {
-  useFrame(() => {
-    scrollIndexRef.current = THREE.MathUtils.lerp(scrollIndexRef.current, targetIndexRef.current, 0.08)
+  useFrame((_, delta) => {
+    const factor = 1 - Math.exp(-7 * delta)
+    scrollIndexRef.current = THREE.MathUtils.lerp(scrollIndexRef.current, targetIndexRef.current, factor)
   })
   return null
 }
@@ -237,7 +230,8 @@ export default function HeroScene({ mouseX=0, mouseY=0 }) {
 
   return (
     <Canvas camera={{ position:[0, 0, 12], fov:55 }}
-      dpr={[1,1.8]} gl={{ antialias:true, alpha:true, logarithmicDepthBuffer:true }}
+      dpr={[1, 1.5]}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background:"transparent" }}>
 
       <ambientLight intensity={0.22}/>
@@ -252,7 +246,7 @@ export default function HeroScene({ mouseX=0, mouseY=0 }) {
       <group>
         <Suspense fallback={null}>
           {CARDS.map((c, i) => (
-            <DepthCard key={i} physicalIndex={c.physicalIndex} floatDelay={c.delay} url={c.url} scrollIndexRef={scrollIndexRef} targetIndexRef={targetIndexRef} glowColor={c.color}/>
+            <DepthCard key={i} physicalIndex={c.physicalIndex} floatDelay={c.delay} url={c.url} scrollIndexRef={scrollIndexRef} glowColor={c.color}/>
           ))}
         </Suspense>
       </group>
