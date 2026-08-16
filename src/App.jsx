@@ -1388,7 +1388,7 @@ function Contact() {
         {/* Glowing Send a Message CTA */}
         <ScrollElementScrub className="flex justify-center mb-16">
           <MagBtn
-            onClick={() => window.location.href = "mailto:manoharkumar6206@gmail.com"}
+            onClick={() => window.open("https://wa.me/916206293136?text=Hi%20Manohar,%20I%20saw%20your%20portfolio%20and%20would%20like%20to%20connect!", "_blank")}
             className="px-10 py-4 sm:px-12 sm:py-4.5 rounded-full text-base sm:text-lg font-black text-black flex items-center gap-3 transition-transform hover:scale-105 active:scale-95 cursor-pointer shadow-2xl"
             style={{
               background: "linear-gradient(135deg, #2DD4BF 0%, #38BDF8 100%)",
