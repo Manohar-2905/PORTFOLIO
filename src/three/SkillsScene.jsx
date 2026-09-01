@@ -5,15 +5,15 @@ import { Text, Float, MeshDistortMaterial, Sparkles } from "@react-three/drei"
 import * as THREE from "three"
 
 const ITEMS = [
-  { label:"React",      color:"#61DAFB", pos:[-3.6, 1.3, 0],   s:0.54 },
-  { label:"Node.js",    color:"#68A063", pos:[-1.2, 2.1, -1],  s:0.47 },
-  { label:"Python",     color:"#3776AB", pos:[ 1.5, 2.0,  0],  s:0.5  },
-  { label:"MongoDB",    color:"#47A248", pos:[ 3.5, 1.1, -0.5],s:0.51 },
-  { label:"FastAPI",    color:"#009688", pos:[-3.3,-1.0, -0.5],s:0.44 },
-  { label:"Gemini AI",  color:"#4285F4", pos:[-0.8,-1.9,  0],  s:0.57 },
-  { label:"TypeScript", color:"#3178C6", pos:[ 2.2,-1.5, -0.8],s:0.45 },
-  { label:"Tailwind",   color:"#06B6D4", pos:[ 0.2, 0.5,  1.2],s:0.49 },
-  { label:"JWT",        color:"#d63aff", pos:[-1.8, 0.4, -1.5],s:0.41 },
+  { label: "React", color: "#61DAFB", pos: [-3.6, 1.3, 0], s: 0.54 },
+  { label: "Node.js", color: "#68A063", pos: [-1.2, 2.1, -1], s: 0.47 },
+  { label: "Python", color: "#3776AB", pos: [1.5, 2.0, 0], s: 0.5 },
+  { label: "MongoDB", color: "#47A248", pos: [3.5, 1.1, -0.5], s: 0.51 },
+  { label: "FastAPI", color: "#009688", pos: [-3.3, -1.0, -0.5], s: 0.44 },
+  { label: "Gemini AI", color: "#4285F4", pos: [-0.8, -1.9, 0], s: 0.57 },
+  { label: "TypeScript", color: "#3178C6", pos: [2.2, -1.5, -0.8], s: 0.45 },
+  { label: "Tailwind", color: "#06B6D4", pos: [0.2, 0.5, 1.2], s: 0.49 },
+  { label: "JWT", color: "#d63aff", pos: [-1.8, 0.4, -1.5], s: 0.41 },
 ]
 
 function SkillOrb({ label, color, pos, s, index }) {
@@ -68,8 +68,8 @@ export default function SkillsScene() {
       dpr={[1, 1.6]} gl={{ antialias: true, alpha: true }}
       style={{ background: "transparent", width: "100%", height: "100%" }}>
       <ambientLight intensity={0.5} />
-      <pointLight position={[0, 0, 6]}  intensity={1.5} color="#3B82F6" />
-      <pointLight position={[5, 3, 3]}  intensity={1.2} color="#38BDF8" />
+      <pointLight position={[0, 0, 6]} intensity={1.5} color="#3B82F6" />
+      <pointLight position={[5, 3, 3]} intensity={1.2} color="#38BDF8" />
       <BigRing />
       <Suspense fallback={null}>
         {ITEMS.map((it, i) => <SkillOrb key={it.label} {...it} index={i} />)}
