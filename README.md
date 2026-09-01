@@ -1,27 +1,76 @@
-# 🚀 Manohar Kumar — 3D Animated Portfolio
+# 🚀 Manohar Kumar — 3D Cyber-Minimalist Portfolio v3
 
-A premium, recruiter-stopping portfolio built with React, React Three Fiber, GSAP, Framer Motion, and Three.js.
+A high-performance, award-winning developer portfolio built with React 18, Three.js, React Three Fiber, GSAP ScrollTrigger, Lenis, and Framer Motion.
 
-## 🛠️ Tech Stack
-- **React 18** + **Vite**
-- **React Three Fiber** (@react-three/fiber + @react-three/drei) — 3D scenes
-- **Three.js** — 3D engine under the hood
-- **GSAP** + **ScrollTrigger** — cinematic scroll animations
-- **Framer Motion** — UI transitions & spring physics
-- **Tailwind CSS** — utility styling
-- **Syne** (Google Fonts) — typography
+---
 
-## ⚡ Features
-- 🎬 Cinematic loading screen with GSAP bar animation
-- 🌐 3D floating photo collage in hero (your real photos as polaroids!)
-- 🌍 3D profile photo sphere with rotating rings (About section)
-- 🔮 3D floating skill orbs (Skills section background)
-- 🃏 Sticky stacking project cards with 3D tilt on hover
-- ✨ Custom magnetic cursor + blue particle trail
-- 📊 GSAP ScrollTrigger scroll-driven animations
-- 🎉 Easter egg: type "hire" anywhere → confetti!
-- 📱 Fully responsive (mobile-first)
-- 🌿 Grain film overlay, dot-grid backgrounds
+## 🛠️ Modern Tech Stack
+- **Core**: React 18 + Vite
+- **3D Graphics & WebGL**: Three.js + `@react-three/fiber` + `@react-three/drei`
+- **Smooth Inertia Scroll**: Lenis (v1.3)
+- **Timeline & Scroll Orchestration**: GSAP 3 + ScrollTrigger
+- **Spring Physics & Gestures**: Framer Motion 11
+- **Styling & Design Tokens**: Tailwind CSS + Custom HUD Glassmorphism
+- **Typography**: Syne & JetBrains Mono (Google Fonts)
+- **Icons**: Lucide React
+
+---
+
+## ⚡ Key Highlights & Architecture
+- 🎬 **Cyber-HUD Preloader**: Live 00% → 100% telemetry counter with dual-curtain exit animation.
+- 🌌 **3D Cyber Background**: Interactive WebGL layer with 3D wireframe polyhedra, mouse parallax, and center laser beam.
+- 🖼️ **3D Hero Orbital Scene**: Depth photo cards with real-time mouse parallax and scanner lights.
+- 💎 **3D Holographic Profile**: Floating avatar card with telemetry tags and career roadmap.
+- 🔮 **3D Skills Constellation**: Translucent skill orbs with category matrix & DSA milestones.
+- 📱 **Interactive Project Gallery**: Dynamic 2/3/4 column toggles with full-screen case study modal & live links.
+- 🏆 **Hackathons & Achievements**: Matrix code rain animation and certificate previews.
+- ⚡ **Magnetic Direct Connect**: Interactive WhatsApp gateway and instant copy-to-clipboard contact cards.
+- 🎯 **Easter Egg**: Type `"hire"` anywhere on the page for an instant confetti celebration!
+
+---
+
+## 📁 Clean Project Structure
+```
+src/
+├── components/
+│   ├── common/
+│   │   ├── BackToTop.jsx        # Floating scroll-to-top button
+│   │   ├── Cursor.jsx           # Fluid magnetic dual-layer pointer
+│   │   ├── CyberBackground.jsx  # Interactive 3D WebGL background layer
+│   │   ├── EasterEgg.jsx        # "hire" secret keycode listener
+│   │   ├── Preloader.jsx        # Cyber-HUD loading screen
+│   │   ├── ProgressBar.jsx      # Top neon scroll progress indicator
+│   │   ├── ScrollReveal.jsx     # Reusable Framer Motion scrub helpers
+│   │   ├── ShootingStars.jsx    # Ambient meteor shower particles
+│   │   └── Trail.jsx            # Custom canvas pointer trail
+│   ├── layout/
+│   │   ├── Navbar.jsx           # Glassmorphic top HUD navigation
+│   │   └── Footer.jsx           # Telemetry status footer
+│   ├── modals/
+│   │   └── ProjectModal.jsx     # Case study modal with multi-image gallery
+│   └── sections/
+│       ├── About.jsx            # Bio, 3D avatar card, career timeline
+│       ├── Contact.jsx          # Magnetic CTA, WhatsApp connect, email card
+│       ├── Experience.jsx       # Work history timeline with glowing nodes
+│       ├── Hackathons.jsx       # Award certificates and matrix rain
+│       ├── Hero.jsx             # Typewriter roles, quick stats, 3D HeroScene
+│       ├── Marquee.jsx          # Infinite dual-track technical skills ticker
+│       ├── Projects.jsx         # Case studies and dynamic column switcher
+│       └── Skills.jsx           # 3D SkillsScene + proficiency dashboard
+├── data/
+│   └── portfolioData.js         # Single source of truth for all projects & info
+├── hooks/
+│   └── useTypewriter.js         # Reusable typewriter hook
+├── three/
+│   ├── HeroScene.jsx            # 3D interactive depth card carousel
+│   ├── ProfileScene.jsx         # 3D floating holographic avatar card
+│   └── SkillsScene.jsx          # 3D orbiting skill spheres
+├── index.css                    # Design tokens and custom utilities
+├── App.jsx                      # Root coordinator with Lenis & ScrollTrigger
+└── main.jsx                     # React 18 DOM mount point
+```
+
+---
 
 ## 🚀 Quick Start
 
@@ -29,59 +78,13 @@ A premium, recruiter-stopping portfolio built with React, React Three Fiber, GSA
 # 1. Install dependencies
 npm install
 
-# 2. Start dev server
+# 2. Run locally
 npm run dev
 
-# 3. Open http://localhost:5173
-```
-
-## 📁 Project Structure
-```
-manohar-portfolio/
-├── public/
-│   └── photos/          ← Your real photos (already included!)
-│       ├── hero.jpg      ← Main hero + profile sphere
-│       ├── photo2-9.jpg  ← Hero collage + project images
-│       └── landscape.jpg
-├── src/
-│   ├── App.jsx           ← Main app (all sections)
-│   ├── index.css         ← Global styles + animations
-│   ├── main.jsx          ← React root
-│   └── three/
-│       ├── HeroScene.jsx    ← 3D hero with floating photo cards
-│       ├── ProfileScene.jsx ← 3D spinning photo sphere
-│       └── SkillsScene.jsx  ← 3D floating skill orbs
-├── package.json
-├── tailwind.config.js
-├── vite.config.js
-└── index.html
-```
-
-## ✏️ How to Customize
-
-### Replace Photos
-Photos are already in `/public/photos/`. Replace any file keeping the same filename.
-
-### Update Projects / Skills
-Edit the `PROJECTS`, `SKILLS` arrays at the top of `src/App.jsx`.
-
-### Fill in Certifications
-Update the `CERTS` array in `src/App.jsx` with your actual cert names and platforms.
-
-### Fill in Hackathons
-Update the `HACKS` array in `src/App.jsx` with your actual hackathon details.
-
-### Update Links
-Search for `github.com/Manohar-2905` and `linkedin.com/in/manohar-kumar-661981294` in `App.jsx` and replace with your actual URLs.
-
-## 🎯 Easter Egg
-Type **"hire"** anywhere on the page → confetti explosion! 🎉
-
-## 📦 Build for Production
-```bash
+# 3. Build production bundle
 npm run build
-# Output in /dist — deploy to Vercel/Netlify
 ```
 
 ---
-Built with ❤️ by Manohar Kumar · © 2026
+
+Built with precision by **Manohar Kumar** · © 2026
